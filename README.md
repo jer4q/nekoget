@@ -13,4 +13,8 @@ Technically, it should **probably** work on Windows or others, however the downl
 
 ## Installation
 Well, this isn't hard. You can just download the script, add executable permission (`chmod +x /path/to/nekoget`), and then move it inside of `/usr/bin`.
-However, you will need the *pyperclip* module, it's the only dependency apart from *Python* itself. *Pyperclip* is used for the copy url mechanism.
+However, you will need the *pyperclip* module, it's the only dependency apart from *Python* itself, and it's pre-installed libraries. *Pyperclip* is used for the copy url mechanism.
+
+## Before you Ask..
+### Why is the code written badly?
+Because I am not an expert, and merely had a simple cool idea that I wanted to make happen. Like said in `--version`, ChatGPT made requesting, and then I built upon the simple request feature, to make it a full fledged cli tool.
