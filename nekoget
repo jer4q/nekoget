@@ -1,0 +1,194 @@
+#!/usr/bin/python
+import requests
+from webbrowser import open
+import sys
+import argparse
+import pyperclip
+from os import system
+
+vers_pr = """
+⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠠⠀⠠⠀⠀⠄⠀⢤⡿⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠠⠀⠠⠀⠀⠄⠀⠄
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠃⠈⢃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠃⠀⠀⠀
+⠀⠀⠀⢀⠀⠀⠀⠀⡀⠀⢀⠀⢀⠀⠀⣀⣾⠏⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⣀⣴⠟⠀⠀⡀⠀     _   __________ ______  __________________⠀
+⠄⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡟⠀⡀⠀⢰⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠀⠀⠀⣠⣾⣿⠁⠀⠰⠀⠀⠀⠀   / | / / ____/ //_/ __ \\/ ____/ ____/_  __/
+⠀⠀⠀⠈⠀⠀⠀⠀⠁⠀⠀⠀⠈⢀⣾⣿⠇⡔⢳⣀⣸⣀⡀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠋⠀⠀⠀⠠⠀⠀⠀⠀  /  |/ / __/ / ,< / / / / / __/ __/   / /   
+⡀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⢐⣿⣿⣿⡼⠀⠀⠀⠈⢹⠃⡀⠀⢀⠀⢀⠀⠀⡀⠀⡀⣠⣶⣿⡿⠋⣀⣠⠀⠀⠀⠀⠀⠀⠀⠀ / /|  / /___/ /| / /_/ / /_/ / /___  / /    
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⢿⡏⠀⠀⠀⠀⠀⠀⠙⠦⠤⠤⠤⢤⣴⣆⠀⢠⣾⣟⣿⣿⠗⠉⠰⠥⠄⣠⠀⠀⠀⠀⠀⠀/_/ |_/_____/_/ |_\\____/\\____/_____/ /_/     
+⠁⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⣸⣿⣿⣾⠇⠀⠀⠀⠀⠀⣤⠼⠃⠀⠀⠀⠀⠉⠢⡙⠻⢿⣿⡿⠃⠀⠀⠀⠀⠛⢏⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠿⠋⡿⠿⠀⠀⣠⣤⡤⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⡀⠙⠲⣄⠀⠀⠀⠀⠀⣈⣳⠆⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠋⠀⠀⠀⠀⠀⢀⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠈⠳⡄⠀⠀⢿⠃⠀⠀⠀⠀⠀		
+⠀⠀⠀⠀⠀⠀⠀⢠⠟⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀⠀⠀⠀⠀⢠⡾⠀⠀⡆⠀⠀⠀⠀⠀⣷⡀⠀⠀⠘⢦⢤⣼⡆⠀⠀⠀⠀⠀⠀	Programmed by Jera & ChatGPT
+⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⢠⠏⣇⠀⠀⡄⠀⠀⠀⠀⠀⢹⢳⠀⠀⠀⠈⢧⠁⠀⠀⠀⠀⠀⠀⠀	
+⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⢀⢾⠁⠀⠀⠀⠀⠀⣰⣇⣀⣹⡀⢰⠁⠀⠀⠀⠀⣀⣼⣨⣇⠀⠀⠀⣸⣿⣀⠀⠀⠀⠀⠀⠀	Most request things : ChatGPT
+⠀⠀⠀⠀⠀⢀⡇⠀⠀⠀⠀⢀⡴⠋⠎⠀⠀⠀⠀⠀⢠⠃⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢠⠇⠀⠸⡄⠀⠸⣿⣿⣿⡆⠀⠀⠀⠀⠀	
+⠀⠀⠀⠀⠀⢸⡇⠀⠀⢀⡤⠊⠀⠀⠀⠀⠀⠀⠀⢠⠇⠀⠀⠀⠀⣇⡆⠀⠀⠀⠀⢀⡎⠀⠀⠀⢳⠀⠀⠈⢿⣿⡁⠀⠀⠀⠀⠀	Everything else : Jera
+⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀	
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀	v0.2 | 22.9.2024
+⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
+⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
+⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⢀⡴⠗⠚⠉⢸⠀⠀⠀⢠⡇⠀⠟⢣⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⡞⠉⠀⠀⠀⣸⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⡸⠹⡄⠀⢈⣇⠀⠀⣧⠀⠀⠘⢷⣶⣤⣄⣀⣀⣀⡤⠔⠋⢧⡿⡀⠀⠀⠀⡟⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⠀⡇⠀⢙⣶⣿⣿⡆⠀⣿⢦⡀⠀⠀⢹⣿⣦⣀⣩⠟⠀⠀⠀⠈⠁⢣⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⠞⢣⡴⠋⠀⢿⣿⣿⡄⣟⣶⡻⣦⣀⢀⣿⣻⣿⣿⣄⡀⠀⠀⠀⠀⠈⢆⢀⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀
+"""
+
+prsr = argparse.ArgumentParser()
+
+rat = prsr.add_argument_group("Maturity Flags", "This group contains parameters that control the (age) ratings of the content fetched.")
+ext = prsr.add_argument_group("Extras", "This group contains parameters that control the content fetched further.")
+
+rat.add_argument("-s", "--safe", help="only display safe images (non-suggestive)", action='store_true')
+rat.add_argument("-d", "--disallow-safe", help="do NOT display safe images", action='store_true')
+rat.add_argument("-S", "--suggestive", help="only display suggestive images", action='store_true')
+rat.add_argument("-H", "--horny", help="also display 'borderline' images", action='store_true')
+rat.add_argument("-b", "--borderline", help="only display 'borderline' images", action='store_true')
+rat.add_argument("-N", "--NSFW", help="also display 'explicit' and 'borderline' images", action='store_true')
+rat.add_argument("-F", "--FREAKY", help="only display 'explicit' and 'borderline' images", action='store_true')
+rat.add_argument("--literallysohorny", help="display only 'explicit'", action='store_true')
+
+ext.add_argument("-c", "--character", help="character ID to look for", type=int)
+ext.add_argument("-f", "--is-flagged", help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)", type=int)
+ext.add_argument("-o", "--is-original", help="(USELESS) whether the image's idea is original or it uses characters/settings/content from another place (not original) (0 or 1)", type=int)
+ext.add_argument("-t", "--tag", help="tag ID to look for", type=int)
+ext.add_argument("-a", "--artist", help="artist ID to look for", type=int)
+ext.add_argument("-ss", "--is-screenshot", help="(USELESS) whether the image is a screenshot of an anime ep./manga page (0 or 1)", type=int)
+
+prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
+prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
+prsr.add_argument("-v", "--version", help="display ASCII art and some info", action='store_true')
+# prsr.add_argument("-c", "--copy", help="copy the url to clipboard", action='store_true')
+# prsr.add_argument("-d", "--download", help="download the image", action='store_true')
+args = prsr.parse_args()
+
+if args.version:
+	print(vers_pr)
+	sys.exit()
+
+# Send the request to the API
+url = "https://api.nekosapi.com/v3/images/random"
+
+ratings = ["suggestive", "safe"]
+
+if args.disallow_safe:
+    if sum ([args.disallow_safe, args.safe, args.borderline, args.FREAKY, args.literallysohorny, args.suggestive]) > 1:
+        print("ERROR: You don't need to disallow safe or you are trying to allow and disallow it.")
+        prsr.print_help()
+        sys.exit()
+
+if sum([args.safe, args.suggestive, args.horny, args.borderline, args.NSFW, args.FREAKY, args.literallysohorny]) > 1:
+    print("ERROR: Please select ONE.")
+    prsr.print_help()
+    sys.exit()
+
+if args.disallow_safe:
+    print("Safe DISALLOWED!")
+    ratings.remove("safe")
+
+if args.safe:
+    print("Safe ONLY!")
+    ratings = "safe"
+elif args.suggestive:
+    print("Suggestive Only!")
+    ratings = "suggestive"
+elif args.horny:
+    print("Horny Mode!")
+    ratings.append("borderline")
+elif args.borderline:
+    print("Borderline Only!")
+    ratings = "borderline"
+elif args.NSFW:
+    print("NSFW Active!")
+    ratings.append("borderline")
+    ratings.append("explicit")
+elif args.FREAKY:
+    print("FREAKY Active!")
+    ratings = ["borderline", "explicit"]
+elif args.literallysohorny:
+    print("DUDE! Are you that HORNY?")
+    ratings = "explicit"
+
+params = {
+	"limit" : 1, 
+	"rating" : ratings,
+    "character" : args.character,
+    "tag" : args.tag,
+    "is_screenshot" : args.is_screenshot,
+    "artist" : args.artist,
+    "is_flagged" : None,
+    "is_original" : None
+}
+
+if args.is_flagged:
+    params['is_flagged'] = args.is_flagged
+
+if args.is_original:
+    params['is_original'] = args.is_original
+
+def get_neko():
+	global image_url
+	global image_src
+	if args.verbose:
+		print(f"requesting '{url}' with params: {params}")
+	res = requests.get(url, params=params)
+	res.raise_for_status()
+	
+	# Parse the JSON response
+	json_data = res.json()
+    
+		# Extract the image URL from the first item in the 'items' array
+	if json_data.get("items"):
+		
+		image_url = json_data["items"][0].get("image_url")
+		image_id = json_data["items"][0].get("id")
+		if image_url:
+			print(f"Image ID : {image_id}")
+			open(image_url)
+			if args.print_data:
+				print(json_data)
+		else:
+			print("No image URL found.")
+		
+		rating = json_data["items"][0].get("rating")
+		if rating:
+			print(f"Rating : {rating}")
+
+		image_src = json_data["items"][0].get("source")
+		if image_src:
+			print(f"Source : {image_src}")
+		else:
+			print("No source link found.")
+		print(f"Embed : {image_url}")
+
+		artist_data = json_data["items"][0].get("artist")
+		if artist_data:
+			artist_name = artist_data.get("name")
+			artist_id = artist_data.get("id")
+			print(f"Artist : {artist_name} (ID: {artist_id})")
+		else:
+			print("No artist data found.")
+	else:
+		print("No items found in the response; likely no results for your parameters.")
+		sys.exit()
+
+get_neko()
+
+while True:
+	nextq = input("Press Enter to get another, or type 'c'/'copy' or 'd'/'download': ")
+	nextq = nextq.lower()
+	nextq = nextq.strip()
+	if args.verbose:
+		print(f"nextq = {nextq}")
+	if nextq == "":
+		print("\nNext..\n")
+		get_neko()
+	elif nextq == "c" or nextq == "copy":
+		print("Copied!")
+		pyperclip.copy(image_url)
+	elif nextq == "d" or nextq == "download":
+		system(f"wget -P $(xdg-user-dir DOWNLOAD) {image_url}") 
+	else:
+		print("Something else was written, exiting...")
+		sys.exit()
