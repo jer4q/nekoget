@@ -19,4 +19,3 @@ However, you will need the *pyperclip* module, it's the only dependency apart fr
 ### Why is the code written badly?
 Because I am not an expert, and merely had a simple cool idea that I wanted to make happen. Like said in `--version`, ChatGPT made requesting, and then I built upon the simple request feature, to make it a full fledged cli tool.
 
-Test
