@@ -5,28 +5,30 @@ import sys
 import argparse
 import pyperclip
 from os import system
-from random import randrange, choice
+from random import randrange
+from PIL import Image
+from io import BytesIO
 
 vers_pr = """
 ⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠠⠀⠠⠀⠀⠄⠀⢤⡿⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠠⠀⠠⠀⠀⠄⠀⠄
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠃⠈⢃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠃⠀⠀⠀
-⠀⠀⠀⢀⠀⠀⠀⠀⡀⠀⢀⠀⢀⠀⠀⣀⣾⠏⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⣀⣴⠟⠀⠀⡀⠀		_	__________ ______  __________________⠀
+⠀⠀⠀⢀⠀⠀⠀⠀⡀⠀⢀⠀⢀⠀⠀⣀⣾⠏⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡀⠀⣀⣴⠟⠀⠀⡀⠀     _   __________ ______  __________________⠀
 ⠄⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣿⡟⠀⡀⠀⢰⠀⠀⠄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠠⠀⠀⠀⣠⣾⣿⠁⠀⠰⠀⠀⠀⠀   / | / / ____/ //_/ __ \\/ ____/ ____/_  __/
-⠀⠀⠀⠈⠀⠀⠀⠀⠁⠀⠀⠀⠈⢀⣾⣿⠇⡔⢳⣀⣸⣀⡀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠋⠀⠀⠀⠠⠀⠀⠀⠀  /  |/ / __/ / ,< / / / / / __/ __/   / /	 
-⡀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⢐⣿⣿⣿⡼⠀⠀⠀⠈⢹⠃⡀⠀⢀⠀⢀⠀⠀⡀⠀⡀⣠⣶⣿⡿⠋⣀⣠⠀⠀⠀⠀⠀⠀⠀⠀ / /|  / /___/ /| / /_/ / /_/ / /___  / /	 
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⢿⡏⠀⠀⠀⠀⠀⠀⠙⠦⠤⠤⠤⢤⣴⣆⠀⢠⣾⣟⣿⣿⠗⠉⠰⠥⠄⣠⠀⠀⠀⠀⠀⠀/_/ |_/_____/_/ |_\\____/\\____/_____/ /_/	   
+⠀⠀⠀⠈⠀⠀⠀⠀⠁⠀⠀⠀⠈⢀⣾⣿⠇⡔⢳⣀⣸⣀⡀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣴⣿⡿⠋⠀⠀⠀⠠⠀⠀⠀⠀  /  |/ / __/ / ,< / / / / / __/ __/   / /
+⡀⠀⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⢐⣿⣿⣿⡼⠀⠀⠀⠈⢹⠃⡀⠀⢀⠀⢀⠀⠀⡀⠀⡀⣠⣶⣿⡿⠋⣀⣠⠀⠀⠀⠀⠀⠀⠀⠀ / /|  / /___/ /| / /_/ / /_/ / /___  / /
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣼⣿⢿⡏⠀⠀⠀⠀⠀⠀⠙⠦⠤⠤⠤⢤⣴⣆⠀⢠⣾⣟⣿⣿⠗⠉⠰⠥⠄⣠⠀⠀⠀⠀⠀⠀/_/ |_/_____/_/ |_\\____/\\____/_____/ /_/
 ⠁⠀⠀⠀⠈⠀⠀⠀⠀⠀⠀⣸⣿⣿⣾⠇⠀⠀⠀⠀⠀⣤⠼⠃⠀⠀⠀⠀⠉⠢⡙⠻⢿⣿⡿⠃⠀⠀⠀⠀⠛⢏⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠿⠋⡿⠿⠀⠀⣠⣤⡤⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠈⢦⡀⠙⠲⣄⠀⠀⠀⠀⠀⣈⣳⠆⠀⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠋⠀⠀⠀⠀⠀⢀⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠈⠳⡄⠀⠀⢿⠃⠀⠀⠀⠀⠀		
-⠀⠀⠀⠀⠀⠀⠀⢠⠟⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀⠀⠀⠀⠀⢠⡾⠀⠀⡆⠀⠀⠀⠀⠀⣷⡀⠀⠀⠘⢦⢤⣼⡆⠀⠀⠀⠀⠀⠀	Programmed by Jer4q & ChatGPT
-⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⢠⠏⣇⠀⠀⡄⠀⠀⠀⠀⠀⢹⢳⠀⠀⠀⠈⢧⠁⠀⠀⠀⠀⠀⠀⠀	
-⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⢀⢾⠁⠀⠀⠀⠀⠀⣰⣇⣀⣹⡀⢰⠁⠀⠀⠀⠀⣀⣼⣨⣇⠀⠀⠀⣸⣿⣀⠀⠀⠀⠀⠀⠀	Most request things : ChatGPT
-⠀⠀⠀⠀⠀⢀⡇⠀⠀⠀⠀⢀⡴⠋⠎⠀⠀⠀⠀⠀⢠⠃⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢠⠇⠀⠸⡄⠀⠸⣿⣿⣿⡆⠀⠀⠀⠀⠀	
-⠀⠀⠀⠀⠀⢸⡇⠀⠀⢀⡤⠊⠀⠀⠀⠀⠀⠀⠀⢠⠇⠀⠀⠀⠀⣇⡆⠀⠀⠀⠀⢀⡎⠀⠀⠀⢳⠀⠀⠈⢿⣿⡁⠀⠀⠀⠀⠀	Everything else : Jer4q
+⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠋⠀⠀⠀⠀⠀⢀⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠈⠳⡄⠀⠀⢿⠃⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⢠⠟⠀⠀⠀⠀⠀⠀⢀⠎⠀⠀⠀⠀⠀⠀⢠⡾⠀⠀⡆⠀⠀⠀⠀⠀⣷⡀⠀⠀⠘⢦⢤⣼⡆⠀⠀⠀⠀⠀⠀    Programmed by Jer4q & ChatGPT
+⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⢠⠏⣇⠀⠀⡄⠀⠀⠀⠀⠀⢹⢳⠀⠀⠀⠈⢧⠁⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⢀⢾⠁⠀⠀⠀⠀⠀⣰⣇⣀⣹⡀⢰⠁⠀⠀⠀⠀⣀⣼⣨⣇⠀⠀⠀⣸⣿⣀⠀⠀⠀⠀⠀⠀    Most request things : ChatGPT
+⠀⠀⠀⠀⠀⢀⡇⠀⠀⠀⠀⢀⡴⠋⠎⠀⠀⠀⠀⠀⢠⠃⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢠⠇⠀⠸⡄⠀⠸⣿⣿⣿⡆⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⢸⡇⠀⠀⢀⡤⠊⠀⠀⠀⠀⠀⠀⠀⢠⠇⠀⠀⠀⠀⣇⡆⠀⠀⠀⠀⢀⡎⠀⠀⠀⢳⠀⠀⠈⢿⣿⡁⠀⠀⠀⠀⠀    Everything else : Jer4q
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀	
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀	v0.2 | 22.9.2024
+⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.3 | 24.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -35,6 +37,9 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⠀⡇⠀⢙⣶⣿⣿⡆⠀⣿⢦⡀⠀⠀⢹⣿⣦⣀⣩⠟⠀⠀⠀⠈⠁⢣⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⠞⢣⡴⠋⠀⢿⣿⣿⡄⣟⣶⡻⣦⣀⢀⣿⣻⣿⣿⣄⡀⠀⠀⠀⠀⠈⢆⢀⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀
 """
+
+def parse_list(string):
+    return string.split("+")
 
 prsr = argparse.ArgumentParser()
 
@@ -57,282 +62,272 @@ ext.add_argument("-t", "--tag", help="tag ID to look for", type=int)
 ext.add_argument("-a", "--artist", help="artist ID to look for", type=int)
 ext.add_argument("-ss", "--is-screenshot", help="(USELESS) whether the image is a screenshot of an anime ep./manga page (0 or 1)", type=int)
 
-drat = prsr.add_argument_group("Maturity Flags (Danbooru)", "This group contains parameters that control the (age) ratings of the content fetched from Danbooru.")
-drat.add_argument("-DH", "--dbrhorny", help="also display 'questionable' images", action='store_true')
-drat.add_argument("-DQ", "--dbrquestionable", help="only display 'questionable' images", action='store_true')
-drat.add_argument("-DN", "--dbrNSFW", help="also display 'questionable' and 'explicit' images", action='store_true')
-drat.add_argument("-DF", "--dbrFREAKY", help="only display 'explicit' images", action='store_true')
+yrat = prsr.add_argument_group("Maturity Flags (yande.re)", "This group contains parameters that control the maturity rating of the content fetched from yande.re. If nothing is specified, only SAFE will be shown.")
 
-dext = prsr.add_argument_group("Extras (Danbooru)", "This group contains parameters that control the content fetched further for Danbooru.")
-dext.add_argument("-DHD", "--dbr-hd", help="use original image url instead of the sample image url", action='store_true')
-dext.add_argument("-DT", "--dbr-tags", help="list of tags to get from Danbooru", type=list)
+yrat.add_argument("-yu", "--yand-unspecify", help="show all maturity levels", action='store_true')
+yrat.add_argument("-yq", "--yand-questionable", help="use the QUESTIONABLE flag for content fetched", action='store_true')
+yrat.add_argument("-ye", "--yand-explicit", help="use the EXPLICIT flag for content fetched", action='store_true')
+
+yext = prsr.add_argument_group("Extras (yande.re)", "This group contains parameters that control the content fetched from yande.re further.")
+
+yext.add_argument("-p", "--page", help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max", type=int)
+yext.add_argument("-yt", "--yand-tags", help="tag names to look for", type=parse_list)
+yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't automatically add the 'catgirl' tag", action='store_true')
 
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
 prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
 prsr.add_argument("-v", "--version", help="display ASCII art and some info", action='store_true')
-prsr.add_argument("-D", "--danbooru", help="use Danbooru as an alternative for NekosAPI (EXPERIMENTAL, NOT RECOMMENDED.)", action='store_true')
+prsr.add_argument("-y", "--yande-re", help="use yande.re API instead of NekosAPI", action='store_true')
+prsr.add_argument("-br", "--browser", help="open image in browser, instead of locally (risky, as it will save it into browser history)", action='store_true')
 # prsr.add_argument("-c", "--copy", help="copy the url to clipboard", action='store_true')
 # prsr.add_argument("-d", "--download", help="download the image", action='store_true')
 args = prsr.parse_args()
 
+yand = args.yande_re
+
 if args.version:
-	print(vers_pr)
-	sys.exit()
+    print(vers_pr)
+    sys.exit()
 
-dbr = args.danbooru
-dbr_tags = ["flat_chest"]
-
-url = "https://google.com"
 # Send the request to the API
-if not dbr:
-	url = "https://api.nekosapi.com/v3/images/random"
+if not yand:
+    url = "https://api.nekosapi.com/v3/images/random"
 else:
-	url = f"https://danbooru.donmai.us/posts.json/?tags=cat_girl"
+    url = "https://yande.re/post.json"
 
 ratings = ["suggestive", "safe"]
-ratingsdbr = ["safe"]
 
 if args.disallow_safe:
-	if sum ([args.disallow_safe, args.safe, args.borderline, args.FREAKY, args.literallysohorny, args.suggestive]) > 1:
-		print("ERROR: You don't need to disallow safe or you are trying to allow and disallow it.")
-		prsr.print_help()
-		sys.exit()
+    if sum ([args.disallow_safe, args.safe, args.borderline, args.FREAKY, args.literallysohorny, args.suggestive]) > 1:
+        print("ERROR: You don't need to disallow safe or you are trying to allow and disallow it.")
+        prsr.print_help()
+        sys.exit()
 
 if sum([args.safe, args.suggestive, args.horny, args.borderline, args.NSFW, args.FREAKY, args.literallysohorny]) > 1:
-	print("ERROR: Please select ONE.")
-	prsr.print_help()
-	sys.exit()
+    print("ERROR: Please select ONE.")
+    prsr.print_help()
+    sys.exit()
 
 if args.disallow_safe:
-	print("Safe DISALLOWED!")
-	ratings.remove("safe")
+    print("Safe DISALLOWED!")
+    ratings.remove("safe")
 
 if args.safe:
-	print("Safe ONLY!")
-	ratings = "safe"
+    print("Safe ONLY!")
+    ratings = "safe"
 elif args.suggestive:
-	print("Suggestive Only!")
-	ratings = "suggestive"
+    print("Suggestive Only!")
+    ratings = "suggestive"
 elif args.horny:
-	print("Horny Mode!")
-	ratings.append("borderline")
+    print("Horny Mode!")
+    ratings.append("borderline")
 elif args.borderline:
-	print("Borderline Only!")
-	ratings = "borderline"
+    print("Borderline Only!")
+    ratings = "borderline"
 elif args.NSFW:
-	print("NSFW Active!")
-	ratings.append("borderline")
-	ratings.append("explicit")
+    print("NSFW Active!")
+    ratings.append("borderline")
+    ratings.append("explicit")
 elif args.FREAKY:
-	print("FREAKY Active!")
-	ratings = ["borderline", "explicit"]
+    print("FREAKY Active!")
+    ratings = ["borderline", "explicit"]
 elif args.literallysohorny:
-	print("DUDE! Are you that HORNY?")
-	ratings = "explicit"
-
-if dbr:
-	if sum([args.dbrhorny, args.dbrquestionable, args.dbrNSFW, args.dbrFREAKY]) > 1:
-		print("ERROR: Please select ONE.")
-		prsr.print_help()
-		sys.exit()
-
-if dbr:
-	if args.dbrhorny:
-		ratingsdbr.append("questionable")
-	elif args.dbrquestionable:
-		ratingsdbr = ["questionable"]
-	elif args.dbrNSFW:
-		ratingsdbr.append("questionable")
-		ratingsdbr.append("explicit")
-	elif args.dbrFREAKY:
-		ratingsdbr = ["explicit"]
+    print("DUDE! Are you that HORNY?")
+    ratings = "explicit"
 
 params = {
-	"limit" : 1, 
-	"rating" : ratings,
-	"character" : args.character,
-	"tag" : args.tag,
-	"is_screenshot" : args.is_screenshot,
-	"artist" : args.artist,
-	"is_flagged" : None,
-	"is_original" : None
+    "limit" : 1,
+    "rating" : ratings,
+    "character" : args.character,
+    "tag" : args.tag,
+    "is_screenshot" : args.is_screenshot,
+    "artist" : args.artist,
+    "is_flagged" : None,
+    "is_original" : None
 }
 
-params_dbr = {
-	"page" : 0
+if not args.yand_no_catgirl:
+    ytags = ["catgirl"]
+else:
+    ytags = []
+
+if args.yand_tags:
+    for tag in args.yand_tags:
+        ytags.append(tag)
+
+if sum([args.yand_unspecify, args.yand_questionable, args.yand_explicit]) > 1:
+    print("ERROR: Please select ONE.")
+    prsr.print_help()
+    sys.exit()
+
+
+if not args.yand_unspecify:
+    ytags.append("rating:safe")
+if args.yand_questionable:
+    ytags.append("rating:questionable")
+if args.yand_explicit:
+    ytags.append("rating:explicit")
+
+yand_params = {
+    "limit" : 1000,
+    "tags" : " ".join(ytags),
+    "page" : 0
 }
+
+yand_params["page"] = args.page
+
+
+
+
+#yand_params["tags"].append("neko")
+#print(yand_params)
 
 if args.is_flagged:
-	params['is_flagged'] = args.is_flagged
+    params['is_flagged'] = args.is_flagged
 
 if args.is_original:
-	params['is_original'] = args.is_original
+    params['is_original'] = args.is_original
 
 def get_neko():
-	global image_url
-	global image_src
-	if args.verbose:
-		print(f"requesting '{url}' with params: {params}")
-	res = requests.get(url, params=params)
-	res.raise_for_status()
-	
-	# Parse the JSON response
-	json_data = res.json()
-	
-		# Extract the image URL from the first item in the 'items' array
-	if json_data.get("items"):
-		
-		image_url = json_data["items"][0].get("image_url")
-		image_id = json_data["items"][0].get("id")
-		if image_url:
-			print(f"Image ID : {image_id}")
-			open(image_url)
-			if args.print_data:
-				print(json_data)
-		else:
-			print("No image URL found.")
-		
-		rating = json_data["items"][0].get("rating")
-		if rating:
-			print(f"Rating : {rating}")
+    global image_url
+    global image_src
+    if args.verbose:
+        print(f"requesting '{url}' with params: {params}")
+    res = requests.get(url, params=params)
+    res.raise_for_status()
 
-		image_src = json_data["items"][0].get("source")
-		if image_src:
-			print(f"Source : {image_src}")
-		else:
-			print("No source link found.")
-		print(f"Embed : {image_url}")
+    # Parse the JSON response
+    json_data = res.json()
 
-		artist_data = json_data["items"][0].get("artist")
-		if artist_data:
-			artist_name = artist_data.get("name")
-			artist_id = artist_data.get("id")
-			print(f"Artist : {artist_name} (ID: {artist_id})")
-		else:
-			print("No artist data found.")
-	else:
-		print("No items found in the response; likely no results for your parameters.")
-		sys.exit()
+        # Extract the image URL from the first item in the 'items' array
+    if json_data.get("items"):
 
-viable_options = []
-multiple_found = False
-rating_changed = False
-dbr_dl_url = "https://google.com"
-def dbr_neko():
-	global image_url
-	global image_src
-	global dbr_dl_url
-	global url
-	global rating_changed
-	global tag_found
-	global multiple_found
-	global viable_options
-	tag_found = False
-	if not multiple_found:
-		multiple_found = False
-		print("reset")
-		viable_options = []
-	#if multiple_found:
-	#	print(viable_options)
-	if ratingsdbr and not rating_changed:
-		rating_changed = True
-		url = url + "+rating:"
-		for r in ratingsdbr:
-			if r == ratingsdbr[0]:
-				url = url + r
-			else:
-				url = url + "," + r
-	while not tag_found:
-		#if multiple_found:
-		#	print(viable_options)
-		#tag_found = True
-		res = requests.get(url, params=params_dbr)
-		page = randrange(0,1000)
-		params_dbr["page"] = page
-		#print(url)
-		res.raise_for_status()
-		asset = None
-		data = res.json()
-		results = -1
-		if not multiple_found:
-			for result in data:
-				results += 1
-				for tag in dbr_tags:
-					tag = " "+tag+" "
-					#found = [tag for tag in dbr_tags if tag in data[results].get("tag_string")]
-					if tag in data[results].get("tag_string"):
-						viable_options.append(results)
-						#print(found)
-			print(viable_options)
-		if len(viable_options) < 1:
-			print(f"Didn't find tag in page {page}, checking another..")
-			continue
-		elif len(viable_options) > 1:
-			multiple_found = True
-		else:
-			tag_found = True
-		picked = choice(viable_options)
-		if not args.dbr_hd:
-			asset = data[picked].get("media_asset")
-		else:
-			image_url = data[picked].get("file_url")
-		if asset:
-			img_var = asset.get("variants")
-			if img_var:
-				image_url = img_var[3].get("url")
-		img_id = data[picked].get("id")
-		dbr_dl_url = data[picked].get("file_url")
-		image_src = data[picked].get("source")
-		img_score = data[picked].get("score")
-		img_upscore = data[picked].get("up_score")
-		img_downscore = data[picked].get("down_score")
-		if img_id:
-			print(f"Post ID : {img_id}")
-		if img_score:
-			print(f"Total Score : {img_score}")
-		if img_upscore:
-			print(f"󰔓 : {img_upscore}")
-		if img_downscore:
-			print(f"󰔑 : {img_downscore}")
-		if image_src:
-			print(f"Source : {image_src}")
-		if image_url:
-			print(f"Embed : {image_url}")
-			open(image_url)
-		
-		if multiple_found:
-			print("Just checked:", picked)
-			tag_found = False
-			viable_options.remove(picked)
-			print("There were multiple results found, checking them next.")
-			print(viable_options)
-			break
+        image_url = json_data["items"][0].get("image_url")
+        image_id = json_data["items"][0].get("id")
+        if image_url:
+            print(f"Image ID : {image_id}")
+            if args.browser:
+                open(image_url)
+            else:
+                img_res = requests.get(image_url)    
+                if img_res.status_code == 200:
+                    img = Image.open(BytesIO(img_res.content))
+                    img.show()
+                else:
+                    print("Failed to get image.")
 
-if not dbr:
-	get_neko()
+            if args.print_data:
+                print(json_data)
+        else:
+            print("No image URL found.")
+
+        rating = json_data["items"][0].get("rating")
+        if rating:
+            print(f"Rating : {rating}")
+
+        image_src = json_data["items"][0].get("source")
+        if image_src:
+            print(f"Source : {image_src}")
+        else:
+            print("No source link found.")
+        print(f"Embed : {image_url}")
+
+        artist_data = json_data["items"][0].get("artist")
+        if artist_data:
+            artist_name = artist_data.get("name")
+            artist_id = artist_data.get("id")
+            print(f"Artist : {artist_name} (ID: {artist_id})")
+        else:
+            print("No artist data found.")
+    else:
+        print("No items found in the response; likely no results for your parameters.")
+        sys.exit()
+
+count = 0
+def yand_neko():
+    global image_url
+    global image_src
+    global count
+    if args.verbose:
+        print(f"requesting '{url}' with params: {yand_params}")
+    res = requests.get(url, params=yand_params)
+    res.raise_for_status()
+
+    # Parse the JSON response
+    json_data = res.json()
+    
+    count = -1
+    for i in json_data:
+        count += 1
+   
+    picked = randrange(0,count)
+        # Extract the image URL from the first item in the 'items' array
+    image_url = json_data[picked].get("sample_url")
+    image_id = json_data[picked].get("id")
+    if image_url:
+        print(f"Image ID : {image_id}")
+        if args.browser:
+            open(image_url)
+        else:
+            img_res = requests.get(image_url)
+            if img_res.status_code == 200:
+                img = Image.open(BytesIO(img_res.content))
+                img.show()
+            else:
+                print("Failed to get image.")
+
+        if args.print_data:
+            print(json_data)
+    else:
+        print("No image URL found.")
+    
+    score = json_data[picked].get("score")
+    if score:
+        print(f"Score : {score}")
+
+    rating = json_data[picked].get("rating")
+    if rating:
+        rating = "safe" if rating == "s" else rating
+        rating = "questionable" if rating == "q" else rating
+        rating = "explicit" if rating == "e" else rating
+        print(f"Rating : {rating}")
+
+    image_src = json_data[picked].get("source")
+    if image_src:
+        print(f"Source : {image_src}")
+    else:
+        print("No source link found.")
+    print(f"Embed : {image_url}")
+    author = json_data[picked].get("author")
+    if author:
+        print(f"Author : {author}")
+    #else:
+    #    print("No items found in the response; likely no results for your parameters.")
+    #    sys.exit()
+
+if not yand:
+    get_neko()
 else:
-	dbr_neko()
+    yand_neko()
+    print(f"{count} results found.")
 
 while True:
-	nextq = input("Press Enter to get another, or type 'c'/'copy' or 'd'/'download': ")
-	nextq = nextq.lower()
-	nextq = nextq.strip()
-	if args.verbose:
-		print(f"nextq = {nextq}")
-	if nextq == "":
-		print("\nNext..\n")
-		if not dbr:
-			get_neko()
-		else:
-			dbr_neko()
-	elif nextq == "c" or nextq == "copy":
-		print("Copied!")
-		pyperclip.copy(image_url)
-	elif nextq == "d" or nextq == "download":
-		if not dbr:
-			system(f"wget -P $(xdg-user-dir DOWNLOAD) {image_url}")
-		else:
-			system(f"wget -P $(xdg-user-dir DOWNLOAD) {dbr_dl_url}") 
-	else:
-		print("Something else was written, exiting...")
-		sys.exit()
+    nextq = input("Press Enter to get another, or type 'c'/'copy' or 'd'/'download': ")
+    nextq = nextq.lower()
+    nextq = nextq.strip()
+    if args.verbose:
+        print(f"nextq = {nextq}")
+    if nextq == "":
+        print("\nNext..\n")
+        if not yand:
+            get_neko()
+        else:
+            yand_neko()
+    elif nextq == "c" or nextq == "copy":
+        print("Copied!")
+        pyperclip.copy(image_url)
+    elif nextq == "d" or nextq == "download":
+        system(f"wget -P $(xdg-user-dir DOWNLOAD) {image_url}")
+    else:
+        print("Something else was written, exiting...")
+        sys.exit()
