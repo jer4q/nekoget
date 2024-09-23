@@ -71,7 +71,7 @@ yrat.add_argument("-ye", "--yand-explicit", help="use the EXPLICIT flag for cont
 yext = prsr.add_argument_group("Extras (yande.re)", "This group contains parameters that control the content fetched from yande.re further.")
 
 yext.add_argument("-p", "--page", help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max", type=int)
-yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1+tag2+tag3", type=parse_list)
+yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1+tag2+tag3)", type=parse_list)
 yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't automatically add the 'catgirl' tag", action='store_true')
 
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
