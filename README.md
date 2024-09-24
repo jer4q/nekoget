@@ -13,7 +13,7 @@ Technically, it should **probably** work on Windows or others, however the downl
 
 ## Installation
 Well, this isn't hard. You can just download the script, add executable permission (`chmod +x /path/to/nekoget`), and then move it inside of `/usr/bin`.
-However, you will need the *pyperclip* module, it's the only dependency apart from *Python* itself, and it's pre-installed libraries. *Pyperclip* is used for the copy url mechanism.
+However, you will need *pyperclip* and *pillow*. They are the only dependencies apart from *Python* and it's own libraries. *Pyperclip* is used for copying the links, and *pillow* for displaying images locally.
 
 ## Before you Ask..
 ### Why is the code written badly?
