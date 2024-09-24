@@ -83,7 +83,7 @@ funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun 
 
 funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
 
-prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download th smaller sample instead", action='store_true')
+prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download the smaller sample instead", action='store_true')
 prsr.add_argument("-dnf", "--disable-nerdfonts", help="use text instead of NF icons", action='store_true')
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
 prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
@@ -179,7 +179,7 @@ if args.is_flagged:
 if args.is_original:
     params['is_original'] = args.is_original
 
-def glob_open(image_url):
+def glob_open(image_url, scale_factor=1.0):
     if args.browser:
         open(image_url)
     elif args.terminal:
@@ -188,6 +188,7 @@ def glob_open(image_url):
         img = None
         if img_res.status_code == 200:
             img = Image.open(BytesIO(img_res.content))
+            img = img.resize((int(img.width * scale_factor), int(img.height * scale_factor)))
             img.save("/tmp/tmpimg.png")
         else:
             print("Failed to get image.")
@@ -284,7 +285,11 @@ def yand_neko():
     count = -1
     for i in json_data:
         count += 1
-   
+    
+    if count <= 0:
+        print("No items found in the response; likely no results for your parameters.")
+        sys.exit()
+
     picked = randrange(0,count)
         # Extract the image URL from the first item in the 'items' array
     image_url = json_data[picked].get("sample_url")
@@ -292,7 +297,8 @@ def yand_neko():
     image_id = json_data[picked].get("id")
     if image_url:
         print(f"Image ID : {image_id}")
-        glob_open(image_url)
+        scale_factor = 0.5 if args.terminal else 1.0
+        glob_open(image_url, scale_factor)
 #        if args.browser:
 #            open(image_url)
         #else:
