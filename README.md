@@ -7,13 +7,8 @@ Do **NOT** rely on the maturity ratings too much, as the API does sometimes acci
 ### Another Disclaimer
 Do not expect that many updates, since this project is quite small and simple.
 
-### About the limit of Linux Only
-Technically, it should **probably** work on Windows or others, however the download mechanism utilises **wget**.
-
-
 ## Installation
-Well, this isn't hard. You can just download the script, add executable permission (`chmod +x /path/to/nekoget`), and then move it inside of `/usr/bin`.
-However, you will need *pyperclip* and *pillow*. They are the only dependencies apart from *Python* and it's own libraries. *Pyperclip* is used for copying the links, and *pillow* for displaying images locally.
+Well, this isn't hard. You can clone the source code, and run `makepkg -si` in the folder. This only works for Arch-based distributions, which are the only officially supported distribution type for now.
 
 ## Before you Ask..
 ### Why is the code written badly?
