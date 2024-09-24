@@ -19,3 +19,6 @@ However, you will need *pyperclip* and *pillow*. They are the only dependencies 
 ### Why is the code written badly?
 Because I am not an expert, and merely had a simple cool idea that I wanted to make happen. Like said in `--version`, ChatGPT made requesting, and then I built upon the simple request feature, to make it a full fledged cli tool.
 
+## Extra
+### Extra credits
+Credits of iv-cli to kenshaw on github. (https://github.com/kenshaw/iv/)

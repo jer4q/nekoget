@@ -4,7 +4,7 @@ from webbrowser import open
 import sys
 import argparse
 import pyperclip
-from os import system
+from os import system, environ
 from random import randrange
 from PIL import Image
 from io import BytesIO
@@ -46,14 +46,19 @@ prsr = argparse.ArgumentParser()
 rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
 ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
 
-rat.add_argument("-s", "--safe", help="only display safe images (non-suggestive)", action='store_true')
-rat.add_argument("-d", "--disallow-safe", help="do NOT display safe images", action='store_true')
-rat.add_argument("-S", "--suggestive", help="only display suggestive images", action='store_true')
-rat.add_argument("-H", "--horny", help="also display 'borderline' images", action='store_true')
-rat.add_argument("-b", "--borderline", help="only display 'borderline' images", action='store_true')
-rat.add_argument("-N", "--NSFW", help="also display 'explicit' and 'borderline' images", action='store_true')
-rat.add_argument("-F", "--FREAKY", help="only display 'explicit' and 'borderline' images", action='store_true')
-rat.add_argument("--literallysohorny", help="display only 'explicit'", action='store_true')
+rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is default (removing this and suggestive, will let all types of ratings be shown)", action='store_true')
+rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is default (removing this and safe, will let all types of ratings be shown)", action='store_true')
+rat.add_argument("-pb", "--plus-borderline", help="add borderline filter to allowed ratings", action='store_true')
+rat.add_argument("-pe", "--plus-explicit", help="add explicit filter to allowed ratings", action='store_true')
+
+#rat.add_argument("-s", "--safe", help="only display safe images (non-suggestive)", action='store_true')
+#rat.add_argument("-d", "--disallow-safe", help="do NOT display safe images", action='store_true')
+#rat.add_argument("-S", "--suggestive", help="only display suggestive images", action='store_true')
+#rat.add_argument("-H", "--horny", help="also display 'borderline' images", action='store_true')
+#rat.add_argument("-b", "--borderline", help="only display 'borderline' images", action='store_true')
+#rat.add_argument("-N", "--NSFW", help="also display 'explicit' and 'borderline' images", action='store_true')
+#rat.add_argument("-F", "--FREAKY", help="only display 'explicit' and 'borderline' images", action='store_true')
+#rat.add_argument("--literallysohorny", help="display only 'explicit'", action='store_true')
 
 ext.add_argument("-c", "--character", help="character ID to look for", type=int)
 ext.add_argument("-f", "--is-flagged", help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)", type=int)
@@ -73,6 +78,10 @@ yext = prsr.add_argument_group("Extras (yande.re)", "This group contains paramet
 yext.add_argument("-p", "--page", help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max", type=int)
 yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1+tag2+tag3)", type=parse_list)
 yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't automatically add the 'catgirl' tag", action='store_true')
+
+funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun stuff.")
+
+funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (support kitty and w3m)", action='store_true')
 
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
 prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
@@ -97,43 +106,14 @@ else:
 
 ratings = ["suggestive", "safe"]
 
-if args.disallow_safe:
-    if sum ([args.disallow_safe, args.safe, args.borderline, args.FREAKY, args.literallysohorny, args.suggestive]) > 1:
-        print("ERROR: You don't need to disallow safe or you are trying to allow and disallow it.")
-        prsr.print_help()
-        sys.exit()
-
-if sum([args.safe, args.suggestive, args.horny, args.borderline, args.NSFW, args.FREAKY, args.literallysohorny]) > 1:
-    print("ERROR: Please select ONE.")
-    prsr.print_help()
-    sys.exit()
-
-if args.disallow_safe:
-    print("Safe DISALLOWED!")
+if args.minus_safe:
     ratings.remove("safe")
-
-if args.safe:
-    print("Safe ONLY!")
-    ratings = "safe"
-elif args.suggestive:
-    print("Suggestive Only!")
-    ratings = "suggestive"
-elif args.horny:
-    print("Horny Mode!")
+if args.minus_suggestive:
+    ratings.remove("suggestive")
+if args.plus_borderline:
     ratings.append("borderline")
-elif args.borderline:
-    print("Borderline Only!")
-    ratings = "borderline"
-elif args.NSFW:
-    print("NSFW Active!")
-    ratings.append("borderline")
+if args.plus_explicit:
     ratings.append("explicit")
-elif args.FREAKY:
-    print("FREAKY Active!")
-    ratings = ["borderline", "explicit"]
-elif args.literallysohorny:
-    print("DUDE! Are you that HORNY?")
-    ratings = "explicit"
 
 params = {
     "limit" : 1,
@@ -176,8 +156,17 @@ yand_params = {
 
 yand_params["page"] = args.page
 
+"""
+in_kitty = False
 
-
+if "kitty" in environ.get("TERM", "") and args.terminal:
+    print("Kitty detected, using 'kitten icat' to view image.")
+    in_kitty = True
+elif args.terminal:
+    print("Using 'w3m' to view image.")
+#print(environ.get("TERM", ""))
+    #print("on kitty")
+"""
 
 #yand_params["tags"].append("neko")
 #print(yand_params)
@@ -188,9 +177,35 @@ if args.is_flagged:
 if args.is_original:
     params['is_original'] = args.is_original
 
+def glob_open(image_url):
+    if args.browser:
+        open(image_url)
+    elif args.terminal:
+        img_res = requests.get(image_url)
+        img_res.raise_for_status()
+        img = None
+        if img_res.status_code == 200:
+            img = Image.open(BytesIO(img_res.content))
+            img.save("/tmp/tmpimg.png")
+        else:
+            print("Failed to get image.")
+        if img:
+            system(f"$HOME/.local/share/nekoget/iv-cli /tmp/tmpimg.png")
+    else:
+        img_res = requests.get(image_url)
+        img_res.raise_for_status()
+        if img_res.status_code == 200:
+            img = Image.open(BytesIO(img_res.content))
+            img.show()
+        else:
+            print("Failed to get image.")
+
+full_img_url = ""
+
 def get_neko():
     global image_url
     global image_src
+    global full_img_url
     if args.verbose:
         print(f"requesting '{url}' with params: {params}")
     res = requests.get(url, params=params)
@@ -202,10 +217,13 @@ def get_neko():
         # Extract the image URL from the first item in the 'items' array
     if json_data.get("items"):
 
-        image_url = json_data["items"][0].get("image_url")
+        image_url = json_data["items"][0].get("sample_url")
+        full_img_url = json_data["items"][0].get("image_url")
         image_id = json_data["items"][0].get("id")
         if image_url:
             print(f"Image ID : {image_id}")
+            glob_open(image_url)
+            """
             if args.browser:
                 open(image_url)
             else:
@@ -215,7 +233,7 @@ def get_neko():
                     img.show()
                 else:
                     print("Failed to get image.")
-
+"""
             if args.print_data:
                 print(json_data)
         else:
@@ -248,6 +266,7 @@ def yand_neko():
     global image_url
     global image_src
     global count
+    global full_img_url
     if args.verbose:
         print(f"requesting '{url}' with params: {yand_params}")
     res = requests.get(url, params=yand_params)
@@ -263,18 +282,20 @@ def yand_neko():
     picked = randrange(0,count)
         # Extract the image URL from the first item in the 'items' array
     image_url = json_data[picked].get("sample_url")
+    full_img_url = json_data[picked].get("image_url")
     image_id = json_data[picked].get("id")
     if image_url:
         print(f"Image ID : {image_id}")
-        if args.browser:
-            open(image_url)
-        else:
-            img_res = requests.get(image_url)
-            if img_res.status_code == 200:
-                img = Image.open(BytesIO(img_res.content))
-                img.show()
-            else:
-                print("Failed to get image.")
+        glob_open(image_url)
+#        if args.browser:
+#            open(image_url)
+        #else:
+            #img_res = requests.get(image_url)
+            #if img_res.status_code == 200:
+            #    img = Image.open(BytesIO(img_res.content))
+            #    img.show()
+            #else:
+            #    print("Failed to get image.")
 
         if args.print_data:
             print(json_data)
@@ -325,9 +346,9 @@ while True:
             yand_neko()
     elif nextq == "c" or nextq == "copy":
         print("Copied!")
-        pyperclip.copy(image_url)
+        pyperclip.copy(full_img_url)
     elif nextq == "d" or nextq == "download":
-        system(f"wget -P $(xdg-user-dir DOWNLOAD) {image_url}")
+        system(f"wget -P $(xdg-user-dir DOWNLOAD) {full_img_url}")
     else:
         print("Something else was written, exiting...")
         sys.exit()
