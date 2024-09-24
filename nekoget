@@ -4,7 +4,7 @@ from webbrowser import open
 import sys
 import argparse
 import pyperclip
-from os import system, environ
+from os import system
 from random import randrange
 from PIL import Image
 from io import BytesIO
@@ -28,7 +28,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.3 | 24.9.2024
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.0 | 24.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -46,8 +46,8 @@ prsr = argparse.ArgumentParser()
 rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
 ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
 
-rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is default (removing this and suggestive, will let all types of ratings be shown)", action='store_true')
-rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is default (removing this and safe, will let all types of ratings be shown)", action='store_true')
+rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is on default, removing this and suggestive, will let all types of ratings be shown", action='store_true')
+rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is on default, removing this and safe, will let all types of ratings be shown", action='store_true')
 rat.add_argument("-pb", "--plus-borderline", help="add borderline filter to allowed ratings", action='store_true')
 rat.add_argument("-pe", "--plus-explicit", help="add explicit filter to allowed ratings", action='store_true')
 
@@ -81,8 +81,10 @@ yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't autom
 
 funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun stuff.")
 
-funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (support kitty and w3m)", action='store_true')
+funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
 
+prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download th smaller sample instead", action='store_true')
+prsr.add_argument("-dnf", "--disable-nerdfonts", help="use text instead of NF icons", action='store_true')
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
 prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
 prsr.add_argument("-v", "--version", help="display ASCII art and some info", action='store_true')
@@ -127,7 +129,7 @@ params = {
 }
 
 if not args.yand_no_catgirl:
-    ytags = ["catgirl"]
+    ytags = ["nekomimi"]
 else:
     ytags = []
 
@@ -190,7 +192,7 @@ def glob_open(image_url):
         else:
             print("Failed to get image.")
         if img:
-            system(f"$HOME/.local/share/nekoget/iv-cli /tmp/tmpimg.png")
+            system(f"/usr/share/nekoget/iv-cli /tmp/tmpimg.png")
     else:
         img_res = requests.get(image_url)
         img_res.raise_for_status()
@@ -218,7 +220,7 @@ def get_neko():
     if json_data.get("items"):
 
         image_url = json_data["items"][0].get("sample_url")
-        full_img_url = json_data["items"][0].get("image_url")
+        full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
         image_id = json_data["items"][0].get("id")
         if image_url:
             print(f"Image ID : {image_id}")
@@ -241,20 +243,24 @@ def get_neko():
 
         rating = json_data["items"][0].get("rating")
         if rating:
-            print(f"Rating : {rating}")
+            rating_text = "󰪊" if not args.disable_nerdfonts else "Rating"
+            print(f"{rating_text} : {rating}")
 
         image_src = json_data["items"][0].get("source")
         if image_src:
-            print(f"Source : {image_src}")
+            src_text = "" if not args.disable_nerdfonts else "Source"
+            print(f"{src_text} : {image_src}")
         else:
             print("No source link found.")
-        print(f"Embed : {image_url}")
+        embed_text = "" if not args.disable_nerdfonts else "Embed"
+        print(f"{embed_text} : {image_url}")
 
         artist_data = json_data["items"][0].get("artist")
         if artist_data:
             artist_name = artist_data.get("name")
             artist_id = artist_data.get("id")
-            print(f"Artist : {artist_name} (ID: {artist_id})")
+            artist_text = "" if not args.disable_nerdfonts else "Artist"
+            print(f"{artist_text} : {artist_name} (ID: {artist_id})")
         else:
             print("No artist data found.")
     else:
@@ -282,7 +288,7 @@ def yand_neko():
     picked = randrange(0,count)
         # Extract the image URL from the first item in the 'items' array
     image_url = json_data[picked].get("sample_url")
-    full_img_url = json_data[picked].get("image_url")
+    full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
     image_id = json_data[picked].get("id")
     if image_url:
         print(f"Image ID : {image_id}")
@@ -302,26 +308,36 @@ def yand_neko():
     else:
         print("No image URL found.")
     
+    tags = json_data[picked].get("tags")
+    if tags:
+        tags_text = "󰓹" if not args.disable_nerdfonts else "Tags"
+        print(f"{tags_text} : {tags}")
+
     score = json_data[picked].get("score")
     if score:
-        print(f"Score : {score}")
+        score_text = "" if not args.disable_nerdfonts else "Score"
+        print(f"{score_text} : {score}")
 
     rating = json_data[picked].get("rating")
     if rating:
         rating = "safe" if rating == "s" else rating
         rating = "questionable" if rating == "q" else rating
         rating = "explicit" if rating == "e" else rating
-        print(f"Rating : {rating}")
+        rating_text = "󰪊" if not args.disable_nerdfonts else "Rating"
+        print(f"{rating_text} : {rating}")
 
     image_src = json_data[picked].get("source")
     if image_src:
-        print(f"Source : {image_src}")
+        src_text = "" if not args.disable_nerdfonts else "Source"
+        print(f"{src_text} : {image_src}")
     else:
         print("No source link found.")
-    print(f"Embed : {image_url}")
+    embed_text = "" if not args.disable_nerdfonts else "Embed"
+    print(f"{embed_text} : {image_url}")
     author = json_data[picked].get("author")
     if author:
-        print(f"Author : {author}")
+        author_text = "" if not args.disable_nerdfonts else "Author"
+        print(f"{author_text} : {author}")
     #else:
     #    print("No items found in the response; likely no results for your parameters.")
     #    sys.exit()
