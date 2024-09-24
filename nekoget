@@ -313,8 +313,8 @@ else:
 
 while True:
     nextq = input("Press Enter to get another, or type 'c'/'copy' or 'd'/'download': ")
-    nextq = nextq.lower()
-    nextq = nextq.strip()
+    nextq = nextq.strip().lower()
+    #nextq = nextq.strip()
     if args.verbose:
         print(f"nextq = {nextq}")
     if nextq == "":
