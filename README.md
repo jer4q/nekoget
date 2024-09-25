@@ -14,6 +14,12 @@ Well, this isn't hard. You can clone the source code, and run `makepkg -si` in t
 ### Why is the code written badly?
 Because I am not an expert, and merely had a simple cool idea that I wanted to make happen. Like said in `--version`, ChatGPT made requesting, and then I built upon the simple request feature, to make it a full fledged cli tool.
 
-## Extra
-### Extra credits
-Credits of iv-cli to kenshaw on github. (https://github.com/kenshaw/iv/)
+## Blob use and reasoning
+
+### `iv-cli` bykenshaw on github. (https://github.com/kenshaw/iv/)
+This package is used for viewing images in the terminal, for terminal mode.
+Modifications:
+- Renamed binary from "iv", to "iv-cli"
+
+**Why?**
+I have decided to include this package, as per trying to install it from the **AUR** gave me an error, that an executable called `iv` already existed, and therefore was not possible for me to obtain from the **AUR**, meaning I needed to get it manually. **ALL** for the credits of that tool, go to "bykenshaw" on Github. The **LICENSE** (MIT) for the tool is included as `LICENSE.iv`.

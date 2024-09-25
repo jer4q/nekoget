@@ -3,12 +3,18 @@ import requests
 from webbrowser import open
 import sys
 import argparse
-import pyperclip
-from os import system
+from os import environ
+from subprocess import run
 from random import randrange
 from PIL import Image
 from io import BytesIO
+from pathlib import Path
+from colorama import Fore, Style
 
+prsr = argparse.ArgumentParser()
+Path.mkdir(Path("/tmp/nekoget"), exist_ok=True)
+tmpdir = Path("/tmp/nekoget")
+full_img_url = ""
 vers_pr = """
 ⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠠⠀⠠⠀⠀⠄⠀⢤⡿⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠠⠀⠠⠀⠀⠄⠀⠄
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣾⠃⠈⢃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠃⠀⠀⠀
@@ -28,7 +34,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.1 | 24.9.2024
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.2 | 25.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -41,8 +47,6 @@ vers_pr = """
 def parse_list(string):
     return string.split("+")
 
-prsr = argparse.ArgumentParser()
-
 rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
 ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
 
@@ -50,15 +54,6 @@ rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is on de
 rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is on default, removing this and safe, will let all types of ratings be shown", action='store_true')
 rat.add_argument("-pb", "--plus-borderline", help="add borderline filter to allowed ratings", action='store_true')
 rat.add_argument("-pe", "--plus-explicit", help="add explicit filter to allowed ratings", action='store_true')
-
-#rat.add_argument("-s", "--safe", help="only display safe images (non-suggestive)", action='store_true')
-#rat.add_argument("-d", "--disallow-safe", help="do NOT display safe images", action='store_true')
-#rat.add_argument("-S", "--suggestive", help="only display suggestive images", action='store_true')
-#rat.add_argument("-H", "--horny", help="also display 'borderline' images", action='store_true')
-#rat.add_argument("-b", "--borderline", help="only display 'borderline' images", action='store_true')
-#rat.add_argument("-N", "--NSFW", help="also display 'explicit' and 'borderline' images", action='store_true')
-#rat.add_argument("-F", "--FREAKY", help="only display 'explicit' and 'borderline' images", action='store_true')
-#rat.add_argument("--literallysohorny", help="display only 'explicit'", action='store_true')
 
 ext.add_argument("-c", "--character", help="character ID to look for", type=int)
 ext.add_argument("-f", "--is-flagged", help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)", type=int)
@@ -83,6 +78,7 @@ funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun 
 
 funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
 
+prsr.add_argument("-dp", "--download-path", help="specify a custom download path, default is ~/Downloads", type=Path)
 prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download the smaller sample instead", action='store_true')
 prsr.add_argument("-dnf", "--disable-nerdfonts", help="use text instead of NF icons", action='store_true')
 prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
@@ -90,21 +86,12 @@ prsr.add_argument("--print-data", help="also prints the metadata page of the ima
 prsr.add_argument("-v", "--version", help="display ASCII art and some info", action='store_true')
 prsr.add_argument("-y", "--yande-re", help="use yande.re API instead of NekosAPI", action='store_true')
 prsr.add_argument("-br", "--browser", help="open image in browser, instead of locally (risky, as it will save it into browser history)", action='store_true')
-# prsr.add_argument("-c", "--copy", help="copy the url to clipboard", action='store_true')
-# prsr.add_argument("-d", "--download", help="download the image", action='store_true')
 args = prsr.parse_args()
-
 yand = args.yande_re
 
 if args.version:
     print(vers_pr)
     sys.exit()
-
-# Send the request to the API
-if not yand:
-    url = "https://api.nekosapi.com/v3/images/random"
-else:
-    url = "https://yande.re/post.json"
 
 ratings = ["suggestive", "safe"]
 
@@ -116,6 +103,34 @@ if args.plus_borderline:
     ratings.append("borderline")
 if args.plus_explicit:
     ratings.append("explicit")
+
+def copy(text):
+    symb = " " if not args.disable_nerdfonts else "🔗"
+    if environ.get("XDG_SESSION_TYPE") == "x11":
+        if Path("/usr/bin/xclip").exists():
+            run(["xclip", text], text=True)
+            print(f"{symb} copied!")
+        else:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because xclip wasn't found, do you have it installed?")
+    elif environ.get("XDG_SESSION_TYPE") == "wayland":
+        if Path("/usr/bin/wl-copy").exists():
+            run(["wl-copy", text], text=True)
+            print(f"{symb} copied!")
+        else:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because wl-copy wasn't found, do you have it installed?")
+    else:
+        print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: could not detect session type, can not copy link.")
+
+if args.download_path and not Path.is_dir(args.download_path):
+    print("t")
+    prsr.error("invalid path for -dp")
+if not args.download_path:
+    args.download_path = str(run(["xdg-user-dir", "DOWNLOAD"], capture_output=True, text=True).stdout.strip())
+
+if not yand:
+    url = "https://api.nekosapi.com/v3/images/random"
+else:
+    url = "https://yande.re/post.json"
 
 params = {
     "limit" : 1,
@@ -138,10 +153,7 @@ if args.yand_tags:
         ytags.append(tag)
 
 if sum([args.yand_unspecify, args.yand_questionable, args.yand_explicit]) > 1:
-    print("ERROR: Please select ONE.")
-    prsr.print_help()
-    sys.exit()
-
+    prsr.error("select one out of -yu, -yq or -ye")
 
 if not args.yand_unspecify:
     ytags.append("rating:safe")
@@ -158,20 +170,6 @@ yand_params = {
 
 yand_params["page"] = args.page
 
-"""
-in_kitty = False
-
-if "kitty" in environ.get("TERM", "") and args.terminal:
-    print("Kitty detected, using 'kitten icat' to view image.")
-    in_kitty = True
-elif args.terminal:
-    print("Using 'w3m' to view image.")
-#print(environ.get("TERM", ""))
-    #print("on kitty")
-"""
-
-#yand_params["tags"].append("neko")
-#print(yand_params)
 
 if args.is_flagged:
     params['is_flagged'] = args.is_flagged
@@ -179,31 +177,33 @@ if args.is_flagged:
 if args.is_original:
     params['is_original'] = args.is_original
 
+def get_img(image_url, scale_factor=1.0):
+    img_res = requests.get(image_url)
+    img_res.raise_for_status()
+    if img_res.status_code == 200:
+        img = Image.open(BytesIO(img_res.content))
+        img = img.resize((int(img.width * scale_factor), int(img.height * scale_factor)))
+        img_path = tmpdir / Path("nekores.png")
+        img.save(img_path)
+        return img, img_path
+    else:
+        return 1, img_res.status_code
+
 def glob_open(image_url, scale_factor=1.0):
     if args.browser:
         open(image_url)
     elif args.terminal:
-        img_res = requests.get(image_url)
-        img_res.raise_for_status()
-        img = None
-        if img_res.status_code == 200:
-            img = Image.open(BytesIO(img_res.content))
-            img = img.resize((int(img.width * scale_factor), int(img.height * scale_factor)))
-            img.save("/tmp/tmpimg.png")
+        img_attr = get_img(image_url, scale_factor)
+        if img_attr[0] == 1:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            print("Failed to get image.")
-        if img:
-            system(f"/usr/share/nekoget/iv-cli /tmp/tmpimg.png")
+            run(["/usr/share/nekoget/iv-cli", img_attr[1]], text=True)
     else:
-        img_res = requests.get(image_url)
-        img_res.raise_for_status()
-        if img_res.status_code == 200:
-            img = Image.open(BytesIO(img_res.content))
-            img.show()
+        img_attr = get_img(image_url, scale_factor)
+        if img_attr[0] == 1:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            print("Failed to get image.")
-
-full_img_url = ""
+            img_attr[0].show()
 
 def get_neko():
     global image_url
@@ -214,10 +214,8 @@ def get_neko():
     res = requests.get(url, params=params)
     res.raise_for_status()
 
-    # Parse the JSON response
     json_data = res.json()
 
-        # Extract the image URL from the first item in the 'items' array
     if json_data.get("items"):
 
         image_url = json_data["items"][0].get("sample_url")
@@ -226,21 +224,10 @@ def get_neko():
         if image_url:
             print(f"Image ID : {image_id}")
             glob_open(image_url)
-            """
-            if args.browser:
-                open(image_url)
-            else:
-                img_res = requests.get(image_url)    
-                if img_res.status_code == 200:
-                    img = Image.open(BytesIO(img_res.content))
-                    img.show()
-                else:
-                    print("Failed to get image.")
-"""
             if args.print_data:
                 print(json_data)
         else:
-            print("No image URL found.")
+            print("no image URL found.")
 
         rating = json_data["items"][0].get("rating")
         if rating:
@@ -252,7 +239,7 @@ def get_neko():
             src_text = "" if not args.disable_nerdfonts else "Source"
             print(f"{src_text} : {image_src}")
         else:
-            print("No source link found.")
+            print("no source link found.")
         embed_text = "" if not args.disable_nerdfonts else "Embed"
         print(f"{embed_text} : {image_url}")
 
@@ -263,9 +250,9 @@ def get_neko():
             artist_text = "" if not args.disable_nerdfonts else "Artist"
             print(f"{artist_text} : {artist_name} (ID: {artist_id})")
         else:
-            print("No artist data found.")
+            print("no artist data found.")
     else:
-        print("No items found in the response; likely no results for your parameters.")
+        print("no items found in the response; likely no results for your parameters.")
         sys.exit()
 
 count = 0
@@ -279,7 +266,6 @@ def yand_neko():
     res = requests.get(url, params=yand_params)
     res.raise_for_status()
 
-    # Parse the JSON response
     json_data = res.json()
     
     count = -1
@@ -287,11 +273,10 @@ def yand_neko():
         count += 1
     
     if count <= 0:
-        print("No items found in the response; likely no results for your parameters.")
+        print("no items found in the response; likely no results for your parameters.")
         sys.exit()
 
     picked = randrange(0,count)
-        # Extract the image URL from the first item in the 'items' array
     image_url = json_data[picked].get("sample_url")
     full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
     image_id = json_data[picked].get("id")
@@ -299,29 +284,20 @@ def yand_neko():
         print(f"Image ID : {image_id}")
         scale_factor = 0.5 if args.terminal else 1.0
         glob_open(image_url, scale_factor)
-#        if args.browser:
-#            open(image_url)
-        #else:
-            #img_res = requests.get(image_url)
-            #if img_res.status_code == 200:
-            #    img = Image.open(BytesIO(img_res.content))
-            #    img.show()
-            #else:
-            #    print("Failed to get image.")
 
         if args.print_data:
             print(json_data)
     else:
-        print("No image URL found.")
+        print("no image URL found.")
     
     tags = json_data[picked].get("tags")
     if tags:
-        tags_text = "󰓹" if not args.disable_nerdfonts else "Tags"
+        tags_text = f"{Fore.BLUE}󰓹{Fore.RESET}" if not args.disable_nerdfonts else "Tags"
         print(f"{tags_text} : {tags}")
 
     score = json_data[picked].get("score")
     if score:
-        score_text = "" if not args.disable_nerdfonts else "Score"
+        score_text = f"{Fore.YELLOW}{Fore.RESET}" if not args.disable_nerdfonts else "Score"
         print(f"{score_text} : {score}")
 
     rating = json_data[picked].get("rating")
@@ -329,24 +305,21 @@ def yand_neko():
         rating = "safe" if rating == "s" else rating
         rating = "questionable" if rating == "q" else rating
         rating = "explicit" if rating == "e" else rating
-        rating_text = "󰪊" if not args.disable_nerdfonts else "Rating"
+        rating_text = f"{Fore.GREEN}󰪊{Fore.RESET}" if not args.disable_nerdfonts else "Rating"
         print(f"{rating_text} : {rating}")
 
     image_src = json_data[picked].get("source")
     if image_src:
-        src_text = "" if not args.disable_nerdfonts else "Source"
+        src_text = f"{Fore.MAGENTA}{Fore.RESET}" if not args.disable_nerdfonts else "Source"
         print(f"{src_text} : {image_src}")
     else:
-        print("No source link found.")
-    embed_text = "" if not args.disable_nerdfonts else "Embed"
+        print("no source link found.")
+    embed_text = f"{Fore.BLUE}{Fore.RESET}" if not args.disable_nerdfonts else "Embed"
     print(f"{embed_text} : {image_url}")
     author = json_data[picked].get("author")
     if author:
         author_text = "" if not args.disable_nerdfonts else "Author"
         print(f"{author_text} : {author}")
-    #else:
-    #    print("No items found in the response; likely no results for your parameters.")
-    #    sys.exit()
 
 if not yand:
     get_neko()
@@ -354,23 +327,58 @@ else:
     yand_neko()
     print(f"{count} results found.")
 
-while True:
-    nextq = input("Press Enter to get another, or type 'c'/'copy' or 'd'/'download': ")
-    nextq = nextq.strip().lower()
-    #nextq = nextq.strip()
-    if args.verbose:
-        print(f"nextq = {nextq}")
-    if nextq == "":
-        print("\nNext..\n")
+class NkgShell:
+    def __init__(self):
+        self.cmds = {
+            "help" : self.help,
+            "h" : self.help,
+            "next" : self.next,
+            "" : self.next,
+            "download" : self.download,
+            "d" : self.download,
+            "copy" : self.scopy,
+            "c" : self.scopy,
+            "q" : self.quit,
+            "quit" : self.quit
+        }
+        self.ind = 0 if not args.disable_nerdfonts else 1
+        self.sym = {
+            "prompt" : ["❯", "$"]
+        }
+        self.prompt_active = True 
+    
+    def help(self):
+        print(f"""
+{Style.BRIGHT}NekoGet Shell{Style.RESET_ALL} Help
+
+    :: 'h' or 'help' : print this screen
+    :: empty or 'next' : go to next image
+    :: 'd' or 'download' : download current image
+    :: 'c' or 'copy' : copy embed link of current image
+    :: 'q' or 'quit' : quit nekoget
+        """)
+
+    def next(self):
         if not yand:
             get_neko()
         else:
             yand_neko()
-    elif nextq == "c" or nextq == "copy":
-        print("Copied!")
-        pyperclip.copy(full_img_url)
-    elif nextq == "d" or nextq == "download":
-        system(f"wget -P $(xdg-user-dir DOWNLOAD) {full_img_url}")
-    else:
-        print("Something else was written, exiting...")
+
+    def download(self):
+        run(["wget", "-P", args.download_path, full_img_url], text=True)
+    
+    def scopy(self):
+        copy(full_img_url)
+
+    def quit(self):
         sys.exit()
+    
+    def prompt(self):
+        while self.prompt_active:
+            inp = input(f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym["prompt"][self.ind]}{Fore.RESET} ")
+            if inp in self.cmds:
+                self.cmds[inp]()
+
+sh_inst = NkgShell()
+print("\ntype 'h' or 'help' for a list of commands")
+sh_inst.prompt()
