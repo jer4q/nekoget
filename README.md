@@ -1,11 +1,20 @@
 # nekoget
 A simple tool for getting images from NekosAPI and yande.re. **(Linux ONLY)**
 
-### Disclaimer
-Do **NOT** rely on the maturity ratings too much, as the API does sometimes accidentally include NSFW material as "safe" or "suggestive". This is not something I can control, and I do not blame the team behind NekosAPI either.
+### Maturity ratings
+Do **NOT** rely on the maturity ratings too much, as the API does sometimes accidentally include NSFW material as "safe" or "suggestive". This is not something I can control, and I do not blame the team behind NekosAPI either. All the things listed below, are under the impression that it may be very unreliable.
+- safe : mostly safe content
+- suggestive : mostly suggestive content
+- borderline : nudity allowed, but most often not straight hentai
+- explicit : no limits
 
-### Another Disclaimer
-Do not expect that many updates, since this project is quite small and simple.
+However on yande.re, the maturity ratings are A LOT more reliable. But, it does raise quickly.
+- safe : safe to slightly suggestive content
+- questionable : nudity is allowed, even more if censored
+- explicit : no limits
+
+### Disclaimer
+Do not expect that many updates in the future, since this project is quite small and simple.
 
 ## Installation
 You have two options.
