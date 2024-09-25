@@ -11,6 +11,9 @@ from io import BytesIO
 from pathlib import Path
 from colorama import Fore, Style
 
+history = []
+term = environ.get("TERM")
+factor_mult = 1.00 if "kitty" in term else 0.55
 prsr = argparse.ArgumentParser()
 Path.mkdir(Path("/tmp/nekoget"), exist_ok=True)
 tmpdir = Path("/tmp/nekoget")
@@ -34,7 +37,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.2 | 25.9.2024
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.3 | 26.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -88,6 +91,7 @@ prsr.add_argument("-y", "--yande-re", help="use yande.re API instead of NekosAPI
 prsr.add_argument("-br", "--browser", help="open image in browser, instead of locally (risky, as it will save it into browser history)", action='store_true')
 args = prsr.parse_args()
 yand = args.yande_re
+factor_mult = 1.0 if not args.terminal else factor_mult
 
 if args.version:
     print(vers_pr)
@@ -177,6 +181,7 @@ if args.is_flagged:
 if args.is_original:
     params['is_original'] = args.is_original
 
+
 def get_img(image_url, scale_factor=1.0):
     img_res = requests.get(image_url)
     img_res.raise_for_status()
@@ -197,7 +202,10 @@ def glob_open(image_url, scale_factor=1.0):
         if img_attr[0] == 1:
             print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            run(["/usr/share/nekoget/iv-cli", img_attr[1]], text=True)
+            if "kitty" in term:
+                run(["kitten", "icat", "--align", "left", img_attr[1]])
+            else:
+                run(["img2sixel", img_attr[1]])
     else:
         img_attr = get_img(image_url, scale_factor)
         if img_attr[0] == 1:
@@ -222,7 +230,7 @@ def get_neko():
         full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
         image_id = json_data["items"][0].get("id")
         if image_url:
-            print(f"Image ID : {image_id}")
+            print(f"❮ Image ID : {image_id} ❯")
             glob_open(image_url)
             if args.print_data:
                 print(json_data)
@@ -281,9 +289,9 @@ def yand_neko():
     full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
     image_id = json_data[picked].get("id")
     if image_url:
-        print(f"Image ID : {image_id}")
+        print(f"❮ Image ID : {image_id} ❯")
         scale_factor = 0.5 if args.terminal else 1.0
-        glob_open(image_url, scale_factor)
+        glob_open(image_url, scale_factor * factor_mult)
 
         if args.print_data:
             print(json_data)
@@ -339,11 +347,12 @@ class NkgShell:
             "copy" : self.scopy,
             "c" : self.scopy,
             "q" : self.quit,
-            "quit" : self.quit
+            "quit" : self.quit,
+            "history" : self.history
         }
-        self.ind = 0 if not args.disable_nerdfonts else 1
+        #self.ind = 0 if not args.disable_nerdfonts else 1
         self.sym = {
-            "prompt" : ["❯", "$"]
+            "prompt" : "❯"
         }
         self.prompt_active = True 
     
@@ -356,9 +365,11 @@ class NkgShell:
     :: 'd' or 'download' : download current image
     :: 'c' or 'copy' : copy embed link of current image
     :: 'q' or 'quit' : quit nekoget
+    :: 'history' : show urls of the 10 past images
         """)
 
     def next(self):
+        history.append(full_img_url)
         if not yand:
             get_neko()
         else:
@@ -373,12 +384,20 @@ class NkgShell:
     def quit(self):
         sys.exit()
     
+    def history(self):
+        for i in range(min(len(list(reversed(history))), 10)):
+            print(f"{len(history)-i}. {history[i]}")
+
     def prompt(self):
         while self.prompt_active:
-            inp = input(f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym["prompt"][self.ind]}{Fore.RESET} ")
+            inp = input(f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym["prompt"]}{Fore.RESET} ").strip()
             if inp in self.cmds:
                 self.cmds[inp]()
 
 sh_inst = NkgShell()
 print("\ntype 'h' or 'help' for a list of commands")
-sh_inst.prompt()
+try:
+    sh_inst.prompt()
+except KeyboardInterrupt:
+    print("\ninterrupted")
+    sys.exit()
