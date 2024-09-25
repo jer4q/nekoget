@@ -8,7 +8,7 @@ license=('MIT')
 depends=('python' 'python-pillow' 'python-requests' 'wget' 'python-colorama')
 optdepends=('xclip: for copying links on x11'
 			'wl-copy: for copying images on wayland')
-source=(https://github.com/jer4q/nekoget.git)
+source=("https://github.com/jer4q/nekoget.git" "https://github.com/kenshaw/iv")
 sha256sums=('SKIP')
 
 build() {
