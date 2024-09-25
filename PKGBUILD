@@ -1,9 +1,11 @@
+# Maintainer: jer4q <xp.w1nd0ws.xp.mic@gmail.com
+
 pkgname=nekoget
 pkgver=0.4.1
-maintainer=jer4q
 pkgrel=2
 pkgdesc="A cli tool for fetching random catgirl images from NekosAPI or yande.re"
 arch=('x86_64')
+provides=('iv-cli=v0.2.2')
 url="https://github.com/jer4q/nekoget"
 license=('MIT')
 depends=('python' 'python-pillow' 'python-requests' 'wget' 'python-colorama')
@@ -11,6 +13,7 @@ optdepends=('xclip: for copying links on x11'
 			'wl-copy: for copying images on wayland')
 source=("https://github.com/jer4q/nekoget.git" "https://github.com/kenshaw/iv")
 sha256sums=('SKIP' 'SKIP')
+
 
 build() {
   cd "$srcdir"
