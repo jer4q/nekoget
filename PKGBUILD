@@ -1,7 +1,7 @@
 # Maintainer: jer4q <xp dot w1nd0ws dot xp dot mic at gmail dot com
 
 pkgname=nekoget
-pkgver=0.4.1
+pkgver=0.4.2
 pkgrel=1
 pkgdesc="A cli tool for fetching random catgirl images from NekosAPI or yande.re"
 arch=('x86_64')
