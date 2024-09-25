@@ -18,7 +18,8 @@ Because I am not an expert, and merely had a simple cool idea that I wanted to m
 
 ### `iv-cli` kenshaw on github. (https://github.com/kenshaw/iv/)
 This package is used for viewing images in the terminal, for terminal mode.
-Modifications:
+
+**Modifications:**
 - Renamed binary from "iv", to "iv-cli"
 
 **Why?**
