@@ -16,10 +16,10 @@ Because I am not an expert, and merely had a simple cool idea that I wanted to m
 
 ## Blob use and reasoning
 
-### `iv-cli` bykenshaw on github. (https://github.com/kenshaw/iv/)
+### `iv-cli` kenshaw on github. (https://github.com/kenshaw/iv/)
 This package is used for viewing images in the terminal, for terminal mode.
 Modifications:
 - Renamed binary from "iv", to "iv-cli"
 
 **Why?**
-I have decided to include this package, as per trying to install it from the **AUR** gave me an error, that an executable called `iv` already existed, and therefore was not possible for me to obtain from the **AUR**, meaning I needed to get it manually. **ALL** of the credits for that tool, go to "bykenshaw" on Github. The **LICENSE** (MIT) for the tool is included as `LICENSE.iv`.
+I have decided to include this package, as per trying to install it from the **AUR** gave me an error, that an executable called `iv` already existed, and therefore was not possible for me to obtain from the **AUR**, meaning I needed to get it manually. **ALL** of the credits for that tool, go to "kenshaw" on Github. The **LICENSE** (MIT) for the tool is included as `LICENSE.iv`.
