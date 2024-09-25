@@ -1,7 +1,7 @@
 pkgname=nekoget
 pkgver=0.4.1
-pkgrel=2
 maintainer=jer4q
+pkgrel=2
 pkgdesc="A cli tool for fetching random catgirl images from NekosAPI or yande.re"
 arch=('x86_64')
 url="https://github.com/jer4q/nekoget"
