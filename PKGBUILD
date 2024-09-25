@@ -1,4 +1,4 @@
-# Maintainer: jer4q <xp.w1nd0ws.xp.mic@gmail.com
+# Maintainer: jer4q <xp dot w1nd0ws dot xp dot mic at gmail dot com
 
 pkgname=nekoget
 pkgver=0.4.1
