@@ -14,6 +14,7 @@ optdepends=('xclip: for copying links on x11'
 source=("https://github.com/jer4q/nekoget.git" "https://github.com/kenshaw/iv")
 sha256sums=('SKIP' 'SKIP')
 
+install=nekoget.install
 
 build() {
   cd "$srcdir"
