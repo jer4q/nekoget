@@ -1,6 +1,5 @@
 # nekoget
 ![AUR](https://img.shields.io/aur/version/nekoget?style=for-the-badge&logo=archlinux&logoColor=ffffff&label=AUR)
-![DOWNLOADS](https://img.shields.io/github/downloads/jer4q/nekoget/total?style=for-the-badge&logo=github&logoColor=fffffff&color=%23039e60)
 
 A simple tool for getting images from NekosAPI and yande.re. **(Linux ONLY)**
 
