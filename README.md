@@ -23,4 +23,5 @@ This package is used for viewing images in the terminal, for terminal mode.
 - Renamed binary from "iv", to "iv-cli"
 
 **Why?**
+
 I have decided to include this package, as per trying to install it from the **AUR** gave me an error, that an executable called `iv` already existed, and therefore was not possible for me to obtain from the **AUR**, meaning I needed to get it manually. **ALL** of the credits for that tool, go to "kenshaw" on Github. The **LICENSE** (MIT) for the tool is included as `LICENSE.iv`.
