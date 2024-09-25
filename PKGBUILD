@@ -22,5 +22,6 @@ package() {
   install -Dm755 nekoget "$pkgdir/usr/bin/nekoget"
   install -Dm755 iv-cli "$pkgdir/usr/share/nekoget/iv-cli"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 LICENSE.iv "$pkgdir/usr/share/licenses/$pkgname/LICENSE.iv"
 }
 
