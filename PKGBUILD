@@ -5,7 +5,6 @@ pkgver=0.4.3
 pkgrel=1
 pkgdesc="A cli tool for fetching random catgirl images from NekosAPI or yande.re"
 arch=('x86_64')
-provides=('')
 url="https://github.com/jer4q/nekoget.git"
 license=('MIT')
 depends=('python' 'python-pillow' 'python-requests' 'wget' 'python-colorama' 'libsixel')
