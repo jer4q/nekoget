@@ -8,7 +8,23 @@ Do **NOT** rely on the maturity ratings too much, as the API does sometimes acci
 Do not expect that many updates, since this project is quite small and simple.
 
 ## Installation
-Well, this isn't hard. You can clone the source code, and run `makepkg -si` in the folder. This only works for Arch-based distributions, which are the only officially supported distribution type for now.
+You have two options.
+
+**1. AUR**
+
+You can officially install `nekoget` from the **AUR**. You can use your favorite **AUR Helper** for this.
+```bash
+$ paru -S nekoget
+```
+
+**2. Manual**
+
+You can also install it manually.
+```bash
+$ git clone https://github.com/jer4q/nekoget
+$ cd nekoget
+$ makepkg -si
+```
 
 ## Before you Ask..
 ### Why is the code written badly?
