@@ -2,7 +2,7 @@
 A simple tool for getting images from NekosAPI and yande.re. **(Linux ONLY)**
 
 ### Maturity ratings
-Do **NOT** rely on the maturity ratings too much, as the API does sometimes accidentally include NSFW material as "safe" or "suggestive". This is not something I can control, and I do not blame the team behind NekosAPI either. All the things listed below, are under the impression that it may be very unreliable.
+For NekosAPI, do **NOT** rely on the maturity ratings too much, as the API does sometimes accidentally include NSFW material as "safe" or "suggestive". This is not something I can control, and I do not blame the team behind NekosAPI either. All the things listed below, are under the impression that it may be very unreliable.
 - safe : mostly safe content
 - suggestive : mostly suggestive content
 - borderline : nudity allowed, but most often not straight hentai
