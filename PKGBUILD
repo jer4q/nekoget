@@ -2,7 +2,7 @@
 
 pkgname=nekoget
 pkgver=0.4.1
-pkgrel=2
+pkgrel=1
 pkgdesc="A cli tool for fetching random catgirl images from NekosAPI or yande.re"
 arch=('x86_64')
 provides=('iv-cli=v0.2.2')
