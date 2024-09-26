@@ -11,6 +11,16 @@ from io import BytesIO
 from pathlib import Path
 from colorama import Fore, Style
 
+symb = {
+    "embed" : [f"{Fore.LIGHTGREEN_EX}{Fore.RESET}", "Embed"],
+    "source" : [f"{Fore.LIGHTMAGENTA_EX}{Fore.RESET}", "Source"],
+    "rating" : [f"{Fore.GREEN}󰪊{Fore.RESET}", "Rating"],
+    "score" : [f"{Fore.YELLOW}{Fore.RESET}", "Score"],
+    "tag" : [f"{Fore.BLUE}󰓹{Fore.RESET}", "Tags"],
+    "author" : [f"{Fore.LIGHTYELLOW_EX}{Fore.RESET}", "Author"],
+    "link" : ["-", "🔗"]
+}
+
 history = []
 term = environ.get("TERM")
 factor_mult = 1.00 if "kitty" in term else 0.55
@@ -37,7 +47,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.3 | 26.9.2024
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.4 | 26.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -81,6 +91,7 @@ funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun 
 
 funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
 
+prsr.add_argument("-aw", "--allow-weird-tags", help="allows 'weird' tags; loli, shota", action='store_true')
 prsr.add_argument("-dp", "--download-path", help="specify a custom download path, default is ~/Downloads", type=Path)
 prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download the smaller sample instead", action='store_true')
 prsr.add_argument("-dnf", "--disable-nerdfonts", help="use text instead of NF icons", action='store_true')
@@ -109,7 +120,7 @@ if args.plus_explicit:
     ratings.append("explicit")
 
 def copy(text):
-    symb = " " if not args.disable_nerdfonts else "🔗"
+    symb = "-" if not args.disable_nerdfonts else "🔗"
     if environ.get("XDG_SESSION_TYPE") == "x11":
         if Path("/usr/bin/xclip").exists():
             run(["xclip", text], text=True)
@@ -152,6 +163,10 @@ if not args.yand_no_catgirl:
 else:
     ytags = []
 
+if not args.allow_weird_tags:
+    ytags.append("-loli")
+    ytags.append("-shota")
+
 if args.yand_tags:
     for tag in args.yand_tags:
         ytags.append(tag)
@@ -169,10 +184,10 @@ if args.yand_explicit:
 yand_params = {
     "limit" : 1000,
     "tags" : " ".join(ytags),
-    "page" : 0
+    "page" : args.page
 }
 
-yand_params["page"] = args.page
+#yand_params["page"] = args.page
 
 
 if args.is_flagged:
@@ -213,65 +228,22 @@ def glob_open(image_url, scale_factor=1.0):
         else:
             img_attr[0].show()
 
-def get_neko():
-    global image_url
-    global image_src
-    global full_img_url
-    if args.verbose:
-        print(f"requesting '{url}' with params: {params}")
-    res = requests.get(url, params=params)
-    res.raise_for_status()
+aliases = {
+    "params" : [params, yand_params],
+    "full_url" : ["image_url", "file_url"],
+    "creator" : ["artist", "author"]
+}
 
-    json_data = res.json()
-
-    if json_data.get("items"):
-
-        image_url = json_data["items"][0].get("sample_url")
-        full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
-        image_id = json_data["items"][0].get("id")
-        if image_url:
-            print(f"❮ Image ID : {image_id} ❯")
-            glob_open(image_url)
-            if args.print_data:
-                print(json_data)
-        else:
-            print("no image URL found.")
-
-        rating = json_data["items"][0].get("rating")
-        if rating:
-            rating_text = "󰪊" if not args.disable_nerdfonts else "Rating"
-            print(f"{rating_text} : {rating}")
-
-        image_src = json_data["items"][0].get("source")
-        if image_src:
-            src_text = "" if not args.disable_nerdfonts else "Source"
-            print(f"{src_text} : {image_src}")
-        else:
-            print("no source link found.")
-        embed_text = "" if not args.disable_nerdfonts else "Embed"
-        print(f"{embed_text} : {image_url}")
-
-        artist_data = json_data["items"][0].get("artist")
-        if artist_data:
-            artist_name = artist_data.get("name")
-            artist_id = artist_data.get("id")
-            artist_text = "" if not args.disable_nerdfonts else "Artist"
-            print(f"{artist_text} : {artist_name} (ID: {artist_id})")
-        else:
-            print("no artist data found.")
-    else:
-        print("no items found in the response; likely no results for your parameters.")
-        sys.exit()
-
+al_ind = 1 if yand else 0
 count = 0
-def yand_neko():
+def get_neko():
     global image_url
     global image_src
     global count
     global full_img_url
     if args.verbose:
-        print(f"requesting '{url}' with params: {yand_params}")
-    res = requests.get(url, params=yand_params)
+        print(f"requesting '{url}' with params: {aliases["params"][al_ind]}")
+    res = requests.get(url, params=aliases["params"][al_ind])
     res.raise_for_status()
 
     json_data = res.json()
@@ -285,12 +257,15 @@ def yand_neko():
         sys.exit()
 
     picked = randrange(0,count)
-    image_url = json_data[picked].get("sample_url")
-    full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
-    image_id = json_data[picked].get("id")
+    image_url = json_data[picked].get("sample_url") if yand else json_data["items"][0].get("sample_url")
+    if yand:
+        full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
+    else:
+        full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
+    image_id = json_data[picked].get("id") if yand else json_data["items"][0].get("id")
     if image_url:
         print(f"❮ Image ID : {image_id} ❯")
-        scale_factor = 0.5 if args.terminal else 1.0
+        scale_factor = 0.5 if args.terminal and yand else 1.0
         glob_open(image_url, scale_factor * factor_mult)
 
         if args.print_data:
@@ -298,41 +273,38 @@ def yand_neko():
     else:
         print("no image URL found.")
     
-    tags = json_data[picked].get("tags")
-    if tags:
-        tags_text = f"{Fore.BLUE}󰓹{Fore.RESET}" if not args.disable_nerdfonts else "Tags"
-        print(f"{tags_text} : {tags}")
+    if yand:
+        tags = json_data[picked].get("tags")
+        if tags:
+            print(f"{symb["tag"][args.disable_nerdfonts]} : {tags}")
 
-    score = json_data[picked].get("score")
-    if score:
-        score_text = f"{Fore.YELLOW}{Fore.RESET}" if not args.disable_nerdfonts else "Score"
-        print(f"{score_text} : {score}")
+        score = json_data[picked].get("score")
+        if score:
+            print(f"{symb["score"][args.disable_nerdfonts]} : {score}")
 
-    rating = json_data[picked].get("rating")
+    rating = json_data[picked].get("rating") if yand else json_data["items"][0].get("rating")
+    if rating and yand:
+        yrating_dict = {
+            "s" : "safe",
+            "q" : "questionable",
+            "e" : "explicit"
+        }
+        rating = yrating_dict[rating]
     if rating:
-        rating = "safe" if rating == "s" else rating
-        rating = "questionable" if rating == "q" else rating
-        rating = "explicit" if rating == "e" else rating
-        rating_text = f"{Fore.GREEN}󰪊{Fore.RESET}" if not args.disable_nerdfonts else "Rating"
-        print(f"{rating_text} : {rating}")
+        print(f"{symb["rating"][args.disable_nerdfonts]} : {rating}")
 
-    image_src = json_data[picked].get("source")
+    image_src = json_data[picked].get("source") if yand else json_data["items"][0].get("source")
     if image_src:
-        src_text = f"{Fore.MAGENTA}{Fore.RESET}" if not args.disable_nerdfonts else "Source"
-        print(f"{src_text} : {image_src}")
+        print(f"{symb["source"][args.disable_nerdfonts]} : {image_src}")
     else:
         print("no source link found.")
-    embed_text = f"{Fore.BLUE}{Fore.RESET}" if not args.disable_nerdfonts else "Embed"
-    print(f"{embed_text} : {image_url}")
-    author = json_data[picked].get("author")
+    print(f"{symb["embed"][args.disable_nerdfonts]} : {image_url}")
+    author = json_data[picked].get("author") if yand else json_data["items"][0].get("artist")
     if author:
-        author_text = "" if not args.disable_nerdfonts else "Author"
-        print(f"{author_text} : {author}")
+        print(f"{symb["author"][args.disable_nerdfonts]} : {author}")
 
-if not yand:
-    get_neko()
-else:
-    yand_neko()
+get_neko()
+if yand:
     print(f"{count} results found.")
 
 class NkgShell:
@@ -370,10 +342,10 @@ class NkgShell:
 
     def next(self):
         history.append(full_img_url)
-        if not yand:
-            get_neko()
-        else:
-            yand_neko()
+        get_neko()
+        if yand:
+            print(f"{count} results found.")
+
 
     def download(self):
         run(["wget", "-P", args.download_path, full_img_url], text=True)
@@ -393,6 +365,8 @@ class NkgShell:
             inp = input(f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym["prompt"]}{Fore.RESET} ").strip()
             if inp in self.cmds:
                 self.cmds[inp]()
+            else:
+                print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: '{inp}' is not a recognized command")
 
 sh_inst = NkgShell()
 print("\ntype 'h' or 'help' for a list of commands")
