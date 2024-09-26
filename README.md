@@ -3,6 +3,9 @@
 
 A simple tool for getting images from NekosAPI and yande.re. **(Linux ONLY)**
 
+## Note
+I apologize in advance for possible issues that I may accidentally cause on the project. I have not used **Github**, and I have never maintained a package on the **AUR**. There can be some simple complications that may happen, but there shouldn't be anything major.
+
 ### Maturity ratings
 For NekosAPI, do **NOT** rely on the maturity ratings too much, as the API does sometimes accidentally include NSFW material as "safe" or "suggestive". This is not something I can control, and I do not blame the team behind NekosAPI either. All the things listed below, are under the impression that it may be very unreliable.
 - safe : mostly safe content
