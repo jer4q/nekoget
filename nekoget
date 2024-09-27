@@ -11,6 +11,13 @@ from io import BytesIO
 from pathlib import Path
 from colorama import Fore, Style
 
+#create tmpdir
+
+Path.mkdir(Path("/tmp/nekoget"), exist_ok=True)
+tmpdir = Path("/tmp/nekoget")
+
+# initial assigments
+
 symb = {
     "embed" : [f"{Fore.LIGHTGREEN_EX}{Fore.RESET}", "Embed"],
     "source" : [f"{Fore.LIGHTMAGENTA_EX}{Fore.RESET}", "Source"],
@@ -18,15 +25,12 @@ symb = {
     "score" : [f"{Fore.YELLOW}{Fore.RESET}", "Score"],
     "tag" : [f"{Fore.BLUE}󰓹{Fore.RESET}", "Tags"],
     "author" : [f"{Fore.LIGHTYELLOW_EX}{Fore.RESET}", "Author"],
-    "link" : ["-", "🔗"]
+    "link" : [" ", "🔗"]
 }
-
+count = 0
 history = []
 term = environ.get("TERM")
-factor_mult = 1.00 if "kitty" in term else 0.55
-prsr = argparse.ArgumentParser()
-Path.mkdir(Path("/tmp/nekoget"), exist_ok=True)
-tmpdir = Path("/tmp/nekoget")
+factor_mult = 1.00 if term and "kitty" in term else 0.55
 full_img_url = ""
 vers_pr = """
 ⠀⠀⠀⠠⠀⠀⠀⠀⠀⠀⠠⠀⠠⠀⠀⠄⠀⢤⡿⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠠⠀⠠⠀⠀⠄⠀⠄
@@ -47,7 +51,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.4 | 26.9.2024
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.5 | 27.9.2024
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -57,8 +61,12 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⠞⢣⡴⠋⠀⢿⣿⣿⡄⣟⣶⡻⣦⣀⢀⣿⣻⣿⣿⣄⡀⠀⠀⠀⠀⠈⢆⢀⡾⠀⠀⠀⠀⠀⠀⠀⠀⠀
 """
 
+# add arguments
+
+prsr = argparse.ArgumentParser()
+
 def parse_list(string):
-    return string.split("+")
+    return string.split(",")
 
 rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
 ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
@@ -101,62 +109,21 @@ prsr.add_argument("-v", "--version", help="display ASCII art and some info", act
 prsr.add_argument("-y", "--yande-re", help="use yande.re API instead of NekosAPI", action='store_true')
 prsr.add_argument("-br", "--browser", help="open image in browser, instead of locally (risky, as it will save it into browser history)", action='store_true')
 args = prsr.parse_args()
-yand = args.yande_re
-factor_mult = 1.0 if not args.terminal else factor_mult
+
+# version show
 
 if args.version:
     print(vers_pr)
     sys.exit()
 
-ratings = ["suggestive", "safe"]
+# set up arguments
 
-if args.minus_safe:
-    ratings.remove("safe")
-if args.minus_suggestive:
-    ratings.remove("suggestive")
-if args.plus_borderline:
-    ratings.append("borderline")
-if args.plus_explicit:
-    ratings.append("explicit")
-
-def copy(text):
-    symb = "-" if not args.disable_nerdfonts else "🔗"
-    if environ.get("XDG_SESSION_TYPE") == "x11":
-        if Path("/usr/bin/xclip").exists():
-            run(["xclip", text], text=True)
-            print(f"{symb} copied!")
-        else:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because xclip wasn't found, do you have it installed?")
-    elif environ.get("XDG_SESSION_TYPE") == "wayland":
-        if Path("/usr/bin/wl-copy").exists():
-            run(["wl-copy", text], text=True)
-            print(f"{symb} copied!")
-        else:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because wl-copy wasn't found, do you have it installed?")
-    else:
-        print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: could not detect session type, can not copy link.")
-
-if args.download_path and not Path.is_dir(args.download_path):
-    print("t")
-    prsr.error("invalid path for -dp")
-if not args.download_path:
-    args.download_path = str(run(["xdg-user-dir", "DOWNLOAD"], capture_output=True, text=True).stdout.strip())
+yand = args.yande_re
 
 if not yand:
     url = "https://api.nekosapi.com/v3/images/random"
 else:
     url = "https://yande.re/post.json"
-
-params = {
-    "limit" : 1,
-    "rating" : ratings,
-    "character" : args.character,
-    "tag" : args.tag,
-    "is_screenshot" : args.is_screenshot,
-    "artist" : args.artist,
-    "is_flagged" : None,
-    "is_original" : None
-}
 
 if not args.yand_no_catgirl:
     ytags = ["nekomimi"]
@@ -171,8 +138,10 @@ if args.yand_tags:
     for tag in args.yand_tags:
         ytags.append(tag)
 
-if sum([args.yand_unspecify, args.yand_questionable, args.yand_explicit]) > 1:
-    prsr.error("select one out of -yu, -yq or -ye")
+if args.download_path and not Path.is_dir(args.download_path):
+    prsr.error("invalid path for -dp")
+if not args.download_path:
+    args.download_path = str(run(["xdg-user-dir", "DOWNLOAD"], capture_output=True, text=True).stdout.strip())
 
 if not args.yand_unspecify:
     ytags.append("rating:safe")
@@ -181,14 +150,35 @@ if args.yand_questionable:
 if args.yand_explicit:
     ytags.append("rating:explicit")
 
+# parameters
+
+params = {
+    "limit" : 1,
+    "rating" : ["safe", "suggestive"],
+    "character" : args.character,
+    "tag" : args.tag,
+    "is_screenshot" : args.is_screenshot,
+    "artist" : args.artist,
+    "is_flagged" : None,
+    "is_original" : None
+}
+
 yand_params = {
     "limit" : 1000,
     "tags" : " ".join(ytags),
     "page" : args.page
 }
 
-#yand_params["page"] = args.page
+# ratings
 
+if args.minus_safe:
+    params["rating"].remove("safe")
+if args.minus_suggestive:
+    params["rating"].remove("suggestive")
+if args.plus_borderline:
+    params["rating"].append("borderline")
+if args.plus_explicit:
+    params["rating"].append("explicit")
 
 if args.is_flagged:
     params['is_flagged'] = args.is_flagged
@@ -196,6 +186,27 @@ if args.is_flagged:
 if args.is_original:
     params['is_original'] = args.is_original
 
+if sum([args.yand_unspecify, args.yand_questionable, args.yand_explicit]) > 1:
+    prsr.error("select one out of -yu, -yq or -ye")
+
+# functions
+
+def copy(text):
+    symb = "-" if not args.disable_nerdfonts else "🔗"
+    if environ.get("XDG_SESSION_TYPE") == "x11":
+        if Path("/usr/bin/xclip").exists():
+            run(["xclip", text], text=True)
+            print(f"{symb} copied!")
+        else:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because xclip wasn't found, do you have it installed?")
+    elif environ.get("XDG_SESSION_TYPE") == "wayland":
+        if Path("/usr/bin/wl-copy").exists():
+            run(["wl-copy", text], text=True)
+            print(f"{symb} copied!")
+        else:
+            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because wl-copy (of package wl-clip) wasn't found, do you have it installed?")
+    else:
+        print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: could not detect session type, can not copy link.")
 
 def get_img(image_url, scale_factor=1.0):
     img_res = requests.get(image_url)
@@ -217,10 +228,10 @@ def glob_open(image_url, scale_factor=1.0):
         if img_attr[0] == 1:
             print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            if "kitty" in term:
-                run(["kitten", "icat", "--align", "left", img_attr[1]])
+            if term and "kitty" in term:
+                run(["kitten", "icat", "--align", "left", str(img_attr[1])])
             else:
-                run(["img2sixel", img_attr[1]])
+                run(["img2sixel", str(img_attr[1])])
     else:
         img_attr = get_img(image_url, scale_factor)
         if img_attr[0] == 1:
@@ -228,30 +239,29 @@ def glob_open(image_url, scale_factor=1.0):
         else:
             img_attr[0].show()
 
+
 aliases = {
     "params" : [params, yand_params],
     "full_url" : ["image_url", "file_url"],
     "creator" : ["artist", "author"]
 }
 
-al_ind = 1 if yand else 0
-count = 0
-def get_neko():
+def get_neko(): # the magic happens here !
     global image_url
     global image_src
     global count
     global full_img_url
     if args.verbose:
-        print(f"requesting '{url}' with params: {aliases["params"][al_ind]}")
-    res = requests.get(url, params=aliases["params"][al_ind])
+        print(f"requesting '{url}' with params: {aliases["params"][yand]}")
+    res = requests.get(url, params=aliases["params"][yand])
     res.raise_for_status()
 
     json_data = res.json()
-    
+
     count = -1
     for i in json_data:
         count += 1
-    
+
     if count <= 0:
         print("no items found in the response; likely no results for your parameters.")
         sys.exit()
@@ -272,7 +282,7 @@ def get_neko():
             print(json_data)
     else:
         print("no image URL found.")
-    
+
     if yand:
         tags = json_data[picked].get("tags")
         if tags:
@@ -303,9 +313,7 @@ def get_neko():
     if author:
         print(f"{symb["author"][args.disable_nerdfonts]} : {author}")
 
-get_neko()
-if yand:
-    print(f"{count} results found.")
+# shell
 
 class NkgShell:
     def __init__(self):
@@ -322,12 +330,11 @@ class NkgShell:
             "quit" : self.quit,
             "history" : self.history
         }
-        #self.ind = 0 if not args.disable_nerdfonts else 1
         self.sym = {
             "prompt" : "❯"
         }
-        self.prompt_active = True 
-    
+        self.prompt_active = True
+
     def help(self):
         print(f"""
 {Style.BRIGHT}NekoGet Shell{Style.RESET_ALL} Help
@@ -344,18 +351,18 @@ class NkgShell:
         history.append(full_img_url)
         get_neko()
         if yand:
-            print(f"{count} results found.")
+            print(f"{count+1} results found.")
 
 
     def download(self):
         run(["wget", "-P", args.download_path, full_img_url], text=True)
-    
+
     def scopy(self):
         copy(full_img_url)
 
     def quit(self):
         sys.exit()
-    
+
     def history(self):
         for i in range(min(len(list(reversed(history))), 10)):
             print(f"{len(history)-i}. {history[i]}")
@@ -367,6 +374,12 @@ class NkgShell:
                 self.cmds[inp]()
             else:
                 print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: '{inp}' is not a recognized command")
+
+# begin app
+
+get_neko()
+if yand:
+    print(f"{count+1} results found.")
 
 sh_inst = NkgShell()
 print("\ntype 'h' or 'help' for a list of commands")
