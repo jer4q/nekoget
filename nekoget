@@ -11,7 +11,7 @@ from io import BytesIO
 from pathlib import Path
 from colorama import Fore, Style
 
-#create tmpdir
+# create tmpdir
 
 Path.mkdir(Path("/tmp/nekoget"), exist_ok=True)
 tmpdir = Path("/tmp/nekoget")
@@ -19,13 +19,13 @@ tmpdir = Path("/tmp/nekoget")
 # initial assigments
 
 symb = {
-    "embed" : [f"{Fore.LIGHTGREEN_EX}{Fore.RESET}", "Embed"],
-    "source" : [f"{Fore.LIGHTMAGENTA_EX}{Fore.RESET}", "Source"],
-    "rating" : [f"{Fore.GREEN}󰪊{Fore.RESET}", "Rating"],
-    "score" : [f"{Fore.YELLOW}{Fore.RESET}", "Score"],
-    "tag" : [f"{Fore.BLUE}󰓹{Fore.RESET}", "Tags"],
-    "author" : [f"{Fore.LIGHTYELLOW_EX}{Fore.RESET}", "Author"],
-    "link" : [" ", "🔗"]
+    "embed": [f"{Fore.LIGHTGREEN_EX}{Fore.RESET}", "Embed"],
+    "source": [f"{Fore.LIGHTMAGENTA_EX}{Fore.RESET}", "Source"],
+    "rating": [f"{Fore.GREEN}󰪊{Fore.RESET}", "Rating"],
+    "score": [f"{Fore.YELLOW}{Fore.RESET}", "Score"],
+    "tag": [f"{Fore.BLUE}󰓹{Fore.RESET}", "Tags"],
+    "author": [f"{Fore.LIGHTYELLOW_EX}{Fore.RESET}", "Author"],
+    "link": [" ", "🔗"],
 }
 count = 0
 history = []
@@ -51,7 +51,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.6 | 1/7/2025
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.7 | 13/2/2026
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -65,49 +65,163 @@ vers_pr = """
 
 prsr = argparse.ArgumentParser()
 
+
 def parse_list(string):
     return string.split(",")
 
-rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
-ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
 
-rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is on default, removing this and suggestive, will let all types of ratings be shown", action='store_true')
-rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is on default, removing this and safe, will let all types of ratings be shown", action='store_true')
-rat.add_argument("-pb", "--plus-borderline", help="add borderline filter to allowed ratings", action='store_true')
-rat.add_argument("-pe", "--plus-explicit", help="add explicit filter to allowed ratings", action='store_true')
+rat = prsr.add_argument_group(
+    "Maturity Flags (NekosAPI)",
+    "This group contains parameters that control the (age) ratings of the content fetched.",
+)
+ext = prsr.add_argument_group(
+    "Extras (NekosAPI)",
+    "This group contains parameters that control the content fetched further.",
+)
+
+rat.add_argument(
+    "-ms",
+    "--minus-safe",
+    help="remove safe filter, as it is on default, removing this and suggestive, will let all types of ratings be shown",
+    action="store_true",
+)
+rat.add_argument(
+    "-mS",
+    "--minus-suggestive",
+    help="remove suggestive filter, as it is on default, removing this and safe, will let all types of ratings be shown",
+    action="store_true",
+)
+rat.add_argument(
+    "-pb",
+    "--plus-borderline",
+    help="add borderline filter to allowed ratings",
+    action="store_true",
+)
+rat.add_argument(
+    "-pe",
+    "--plus-explicit",
+    help="add explicit filter to allowed ratings",
+    action="store_true",
+)
 
 ext.add_argument("-c", "--character", help="character ID to look for", type=int)
-ext.add_argument("-f", "--is-flagged", help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)", type=int)
-ext.add_argument("-o", "--is-original", help="(USELESS) whether the image's idea is original or it uses characters/settings/content from another place (not original) (0 or 1)", type=int)
+ext.add_argument(
+    "-f",
+    "--is-flagged",
+    help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)",
+    type=int,
+)
+ext.add_argument(
+    "-o",
+    "--is-original",
+    help="(USELESS) whether the image's idea is original or it uses characters/settings/content from another place (not original) (0 or 1)",
+    type=int,
+)
 ext.add_argument("-t", "--tag", help="tag ID to look for", type=int)
 ext.add_argument("-a", "--artist", help="artist ID to look for", type=int)
-ext.add_argument("-ss", "--is-screenshot", help="(USELESS) whether the image is a screenshot of an anime ep./manga page (0 or 1)", type=int)
+ext.add_argument(
+    "-ss",
+    "--is-screenshot",
+    help="(USELESS) whether the image is a screenshot of an anime ep./manga page (0 or 1)",
+    type=int,
+)
 
-yrat = prsr.add_argument_group("Maturity Flags (yande.re)", "This group contains parameters that control the maturity rating of the content fetched from yande.re. If nothing is specified, only SAFE will be shown.")
+yrat = prsr.add_argument_group(
+    "Maturity Flags (yande.re)",
+    "This group contains parameters that control the maturity rating of the content fetched from yande.re. If nothing is specified, only SAFE will be shown.",
+)
 
-yrat.add_argument("-yu", "--yand-unspecify", help="show all maturity levels", action='store_true')
-yrat.add_argument("-yq", "--yand-questionable", help="use the QUESTIONABLE flag for content fetched", action='store_true')
-yrat.add_argument("-ye", "--yand-explicit", help="use the EXPLICIT flag for content fetched", action='store_true')
+yrat.add_argument(
+    "-yu", "--yand-unspecify", help="show all maturity levels", action="store_true"
+)
+yrat.add_argument(
+    "-yq",
+    "--yand-questionable",
+    help="use the QUESTIONABLE flag for content fetched",
+    action="store_true",
+)
+yrat.add_argument(
+    "-ye",
+    "--yand-explicit",
+    help="use the EXPLICIT flag for content fetched",
+    action="store_true",
+)
 
-yext = prsr.add_argument_group("Extras (yande.re)", "This group contains parameters that control the content fetched from yande.re further.")
+yext = prsr.add_argument_group(
+    "Extras (yande.re)",
+    "This group contains parameters that control the content fetched from yande.re further.",
+)
 
-yext.add_argument("-p", "--page", help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max", type=int)
-yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1+tag2+tag3)", type=parse_list)
-yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't automatically add the 'catgirl' tag", action='store_true')
+yext.add_argument(
+    "-p",
+    "--page",
+    help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max",
+    type=int,
+)
+yext.add_argument(
+    "-yt",
+    "--yand-tags",
+    help="tag names to look for (format: tag1+tag2+tag3)",
+    type=parse_list,
+)
+yext.add_argument(
+    "-ync",
+    "--yand-no-catgirl",
+    help="when enabled, doesn't automatically add the 'catgirl' tag",
+    action="store_true",
+)
 
 funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun stuff.")
 
-funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
+funargs.add_argument(
+    "-T",
+    "--terminal",
+    help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)",
+    action="store_true",
+)
 
-prsr.add_argument("-aw", "--allow-weird-tags", help="allows 'weird' tags; loli, shota", action='store_true')
-prsr.add_argument("-dp", "--download-path", help="specify a custom download path, default is ~/Downloads", type=Path)
-prsr.add_argument("-ds", "--download-sample", help="instead of downloading the huge original file, download the smaller sample instead", action='store_true')
-prsr.add_argument("-dnf", "--disable-nerdfonts", help="use text instead of NF icons", action='store_true')
-prsr.add_argument("--verbose", help="extra verbosity", action='store_true')
-prsr.add_argument("--print-data", help="also prints the metadata page of the image", action='store_true')
-prsr.add_argument("-v", "--version", help="display ASCII art and some info", action='store_true')
-prsr.add_argument("-y", "--yande-re", help="use yande.re API instead of NekosAPI", action='store_true')
-prsr.add_argument("-br", "--browser", help="open image in browser, instead of locally (risky, as it will save it into browser history)", action='store_true')
+prsr.add_argument(
+    "-aw",
+    "--allow-weird-tags",
+    help="allows 'weird' tags; loli, shota",
+    action="store_true",
+)
+prsr.add_argument(
+    "-dp",
+    "--download-path",
+    help="specify a custom download path, default is ~/Downloads",
+    type=Path,
+)
+prsr.add_argument(
+    "-ds",
+    "--download-sample",
+    help="instead of downloading the huge original file, download the smaller sample instead",
+    action="store_true",
+)
+prsr.add_argument(
+    "-dnf",
+    "--disable-nerdfonts",
+    help="use text instead of NF icons",
+    action="store_true",
+)
+prsr.add_argument("--verbose", help="extra verbosity", action="store_true")
+prsr.add_argument(
+    "--print-data",
+    help="also prints the metadata page of the image",
+    action="store_true",
+)
+prsr.add_argument(
+    "-v", "--version", help="display ASCII art and some info", action="store_true"
+)
+prsr.add_argument(
+    "-y", "--yande-re", help="use yande.re API instead of NekosAPI", action="store_true"
+)
+prsr.add_argument(
+    "-br",
+    "--browser",
+    help="open image in browser, instead of locally (risky, as it will save it into browser history)",
+    action="store_true",
+)
 args = prsr.parse_args()
 
 # version show
@@ -141,7 +255,9 @@ if args.yand_tags:
 if args.download_path and not Path.is_dir(args.download_path):
     prsr.error("invalid path for -dp")
 if not args.download_path:
-    args.download_path = str(run(["xdg-user-dir", "DOWNLOAD"], capture_output=True, text=True).stdout.strip())
+    args.download_path = str(
+        run(["xdg-user-dir", "DOWNLOAD"], capture_output=True, text=True).stdout.strip()
+    )
 
 if not args.yand_unspecify:
     ytags.append("rating:safe")
@@ -153,21 +269,17 @@ if args.yand_explicit:
 # parameters
 
 params = {
-    "limit" : 1,
-    "rating" : ["safe", "suggestive"],
-    "character" : args.character,
-    "tag" : args.tag,
-    "is_screenshot" : args.is_screenshot,
-    "artist" : args.artist,
-    "is_flagged" : None,
-    "is_original" : None
+    "limit": 1,
+    "rating": ["safe", "suggestive"],
+    "character": args.character,
+    "tag": args.tag,
+    "is_screenshot": args.is_screenshot,
+    "artist": args.artist,
+    "is_flagged": None,
+    "is_original": None,
 }
 
-yand_params = {
-    "limit" : 1000,
-    "tags" : " ".join(ytags),
-    "page" : args.page
-}
+yand_params = {"limit": 1000, "tags": " ".join(ytags), "page": args.page}
 
 # ratings
 
@@ -181,15 +293,16 @@ if args.plus_explicit:
     params["rating"].append("explicit")
 
 if args.is_flagged:
-    params['is_flagged'] = args.is_flagged
+    params["is_flagged"] = args.is_flagged
 
 if args.is_original:
-    params['is_original'] = args.is_original
+    params["is_original"] = args.is_original
 
 if sum([args.yand_unspecify, args.yand_questionable, args.yand_explicit]) > 1:
     prsr.error("select one out of -yu, -yq or -ye")
 
 # functions
+
 
 def copy(text):
     symb = "-" if not args.disable_nerdfonts else "🔗"
@@ -198,27 +311,37 @@ def copy(text):
             run(["xclip", text], text=True)
             print(f"{symb} copied!")
         else:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because xclip wasn't found, do you have it installed?")
+            print(
+                f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because xclip wasn't found, do you have it installed?"
+            )
     elif environ.get("XDG_SESSION_TYPE") == "wayland":
         if Path("/usr/bin/wl-copy").exists():
             run(["wl-copy", text], text=True)
             print(f"{symb} copied!")
         else:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because wl-copy (of package wl-clip) wasn't found, do you have it installed?")
+            print(
+                f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: did not copy, because wl-copy (of package wl-clip) wasn't found, do you have it installed?"
+            )
     else:
-        print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: could not detect session type, can not copy link.")
+        print(
+            f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: could not detect session type, can not copy link."
+        )
+
 
 def get_img(image_url, scale_factor=1.0):
     img_res = requests.get(image_url)
     img_res.raise_for_status()
     if img_res.status_code == 200:
         img = Image.open(BytesIO(img_res.content))
-        img = img.resize((int(img.width * scale_factor), int(img.height * scale_factor)))
+        img = img.resize(
+            (int(img.width * scale_factor), int(img.height * scale_factor))
+        )
         img_path = tmpdir / Path("nekores.png")
         img.save(img_path)
         return img, img_path
     else:
         return 1, img_res.status_code
+
 
 def glob_open(image_url, scale_factor=1.0):
     if args.browser:
@@ -226,7 +349,9 @@ def glob_open(image_url, scale_factor=1.0):
     elif args.terminal:
         img_attr = get_img(image_url, scale_factor)
         if img_attr[0] == 1:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
+            print(
+                f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}"
+            )
         else:
             if term and "kitty" in term:
                 run(["kitten", "icat", "--align", "left", str(img_attr[1])])
@@ -235,44 +360,68 @@ def glob_open(image_url, scale_factor=1.0):
     else:
         img_attr = get_img(image_url, scale_factor)
         if img_attr[0] == 1:
-            print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
+            print(
+                f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}"
+            )
         else:
             img_attr[0].show()
 
 
 aliases = {
-    "params" : [params, yand_params],
-    "full_url" : ["image_url", "file_url"],
-    "creator" : ["artist", "author"]
+    "params": [params, yand_params],
+    "full_url": ["image_url", "file_url"],
+    "creator": ["artist", "author"],
 }
 
-def get_neko(): # the magic happens here !
+
+def get_neko():  # the magic happens here !
     global image_url
     global image_src
     global count
     global full_img_url
+
+    # Filter out None values from params
+    request_params = {k: v for k, v in aliases["params"][yand].items() if v is not None}
+
     if args.verbose:
-        print(f"requesting '{url}' with params: {aliases["params"][yand]}")
-    res = requests.get(url, params=aliases["params"][yand])
+        print(f"requesting '{url}' with params: {request_params}")
+    res = requests.get(url, params=request_params)
     res.raise_for_status()
 
     json_data = res.json()
 
-    count = -1
-    for i in json_data:
-        count += 1
+    # Fix: Use len() to count items correctly
+    # NekosAPI returns a list directly, yande.re also returns a list
+    count = (
+        len(json_data)
+        if isinstance(json_data, list)
+        else len(json_data.get("items", []))
+    )
 
     if count <= 0:
         print("no items found in the response; likely no results for your parameters.")
         sys.exit()
 
-    picked = randrange(0,count)
-    image_url = json_data[picked].get("sample_url") if yand else json_data["items"][0].get("sample_url")
-    if yand:
-        full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
+    # Fix: Handle both list response (NekosAPI) and dict with items key
+    if isinstance(json_data, list):
+        picked = randrange(0, count)
+        data_list = json_data
     else:
-        full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
-    image_id = json_data[picked].get("id") if yand else json_data["items"][0].get("id")
+        data_list = json_data.get("items", [])
+        picked = 0  # NekosAPI with items dict doesn't need random, limit=1
+
+    image_url = (
+        data_list[picked].get("sample_url") if yand else data_list[picked].get("url")
+    )
+    if yand:
+        full_img_url = (
+            data_list[picked].get("file_url") if not args.download_sample else image_url
+        )
+    else:
+        full_img_url = (
+            data_list[picked].get("url") if not args.download_sample else image_url
+        )
+    image_id = data_list[picked].get("id")
     if image_url:
         print(f"❮ Image ID : {image_id} ❯")
         scale_factor = 0.5 if args.terminal and yand else 1.0
@@ -286,53 +435,55 @@ def get_neko(): # the magic happens here !
     if yand:
         tags = json_data[picked].get("tags")
         if tags:
-            print(f"{symb["tag"][args.disable_nerdfonts]} : {tags}")
+            print(f"{symb['tag'][args.disable_nerdfonts]} : {tags}")
 
         score = json_data[picked].get("score")
         if score:
-            print(f"{symb["score"][args.disable_nerdfonts]} : {score}")
+            print(f"{symb['score'][args.disable_nerdfonts]} : {score}")
 
-    rating = json_data[picked].get("rating") if yand else json_data["items"][0].get("rating")
+    rating = data_list[picked].get("rating")
     if rating and yand:
-        yrating_dict = {
-            "s" : "safe",
-            "q" : "questionable",
-            "e" : "explicit"
-        }
+        yrating_dict = {"s": "safe", "q": "questionable", "e": "explicit"}
         rating = yrating_dict[rating]
     if rating:
-        print(f"{symb["rating"][args.disable_nerdfonts]} : {rating}")
+        print(f"{symb['rating'][args.disable_nerdfonts]} : {rating}")
 
-    image_src = json_data[picked].get("source") if yand else json_data["items"][0].get("source")
+    image_src = (
+        data_list[picked].get("source") if yand else data_list[picked].get("source_url")
+    )
     if image_src:
-        print(f"{symb["source"][args.disable_nerdfonts]} : {image_src}")
+        print(f"{symb['source'][args.disable_nerdfonts]} : {image_src}")
     else:
         print("no source link found.")
-    print(f"{symb["embed"][args.disable_nerdfonts]} : {image_url}")
-    author = json_data[picked].get("author") if yand else json_data["items"][0].get("artist")
+    print(f"{symb['embed'][args.disable_nerdfonts]} : {image_url}")
+    author = (
+        data_list[picked].get("author")
+        if yand
+        else data_list[picked].get("artist_name")
+    )
     if author:
-        print(f"{symb["author"][args.disable_nerdfonts]} : {author}")
+        print(f"{symb['author'][args.disable_nerdfonts]} : {author}")
+
 
 # shell
+
 
 class NkgShell:
     def __init__(self):
         self.cmds = {
-            "help" : self.help,
-            "h" : self.help,
-            "next" : self.next,
-            "" : self.next,
-            "download" : self.download,
-            "d" : self.download,
-            "copy" : self.scopy,
-            "c" : self.scopy,
-            "q" : self.quit,
-            "quit" : self.quit,
-            "history" : self.history
+            "help": self.help,
+            "h": self.help,
+            "next": self.next,
+            "": self.next,
+            "download": self.download,
+            "d": self.download,
+            "copy": self.scopy,
+            "c": self.scopy,
+            "q": self.quit,
+            "quit": self.quit,
+            "history": self.history,
         }
-        self.sym = {
-            "prompt" : "❯"
-        }
+        self.sym = {"prompt": "❯"}
         self.prompt_active = True
 
     def help(self):
@@ -351,8 +502,7 @@ class NkgShell:
         history.append(full_img_url)
         get_neko()
         if yand:
-            print(f"{count+1} results found.")
-
+            print(f"{count + 1} results found.")
 
     def download(self):
         run(["wget", "-P", args.download_path, full_img_url], text=True)
@@ -365,21 +515,26 @@ class NkgShell:
 
     def history(self):
         for i in range(min(len(list(reversed(history))), 10)):
-            print(f"{len(history)-i}. {history[i]}")
+            print(f"{len(history) - i}. {history[i]}")
 
     def prompt(self):
         while self.prompt_active:
-            inp = input(f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym["prompt"]}{Fore.RESET} ").strip()
+            inp = input(
+                f"{Style.BRIGHT}NkG{Style.RESET_ALL} {Fore.BLUE}{self.sym['prompt']}{Fore.RESET} "
+            ).strip()
             if inp in self.cmds:
                 self.cmds[inp]()
             else:
-                print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: '{inp}' is not a recognized command")
+                print(
+                    f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: '{inp}' is not a recognized command"
+                )
+
 
 # begin app
 
 get_neko()
 if yand:
-    print(f"{count+1} results found.")
+    print(f"{count + 1} results found.")
 
 sh_inst = NkgShell()
 print("\ntype 'h' or 'help' for a list of commands")
