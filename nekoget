@@ -234,7 +234,7 @@ def glob_open(image_url, scale_factor=1.0):
         if img_attr[0] == 1:
             print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            if term and ("kitty" in term or "ghostty" in term or "konsole" in term):
+            if term and ("kitty" in term or "ghostty" in term or "xterm-256color" in term):
                 run(["kitten", "icat", "--align", "left", str(img_attr[1])])
             else:
                 run(["img2sixel", str(img_attr[1])])
