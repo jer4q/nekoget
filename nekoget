@@ -51,7 +51,7 @@ vers_pr = """
 ⠀⠀⠀⠀⠀⠈⣇⣠⣔⣁⠤⠔⠒⠉⣷⠀⠀⠀⢠⠏⣀⣀⣀⣀⡀⢹⠇⠀⠀⠀⢀⡞⢀⣠⣤⣶⣬⣇⠀⠀⡼⢷⣷⡀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⢯⠉⠁⠀⠀⠀⠀⠆⠹⡆⠀⢠⣿⣾⢿⣿⣿⣿⡿⣿⠄⠀⠀⣠⡾⠡⣿⣿⣿⡍⠙⣿⠁⢀⣿⡆⠀⠙⣄⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢸⠀⠀⠹⡀⣼⡏⠁⣸⣿⣿⢿⡷⡇⠀⣠⠞⢹⠃⠀⡿⡟⢿⠃⠀⡟⡆⢸⠀⠑⠢⠤⠼⠆⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.6 | 1/7/2025
+⠀⠀⠀⠀⠀⠀⠀⣧⠀⠀⠀⠀⢸⠀⠀⠀⠳⡇⢳⠀⢻⣄⠀⢰⢣⡧⠞⠀⠀⠀⠀⠀⢿⣀⡼⠀⢰⠇⠹⢻⠀⠀⠀⠀⠀⠀⠀⠀    v0.4.7 | 1/7/2025
 ⠀⠀⠀⠀⠀⠀⢰⠛⠀⠀⠀⠀⢸⡆⠀⠀⠀⠉⠀⢧⠀⢙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⢁⢠⣾⡀⠀⢸⠀⠀⣶⡿⣿⠀⠀⠀
 ⠀⠀⠀⠀⠀⢀⡎⠀⢠⠀⠀⠀⠀⡇⠀⠀⠀⠀⢲⣄⣿⡌⠦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡀⣿⠃⠀⢸⠀⠀⢸⠟⠛⠀⠀⠀
 ⠀⠀⠀⠀⢀⠞⢀⣠⠃⠀⠀⠀⡔⢻⢸⡀⠀⠀⠈⡇⠙⠓⠀⠀⠀⠀⠀⠀⠀⠀⠄⠀⠀⠀⠀⣠⠟⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀
@@ -69,17 +69,18 @@ def parse_list(string):
     return string.split(",")
 
 rat = prsr.add_argument_group("Maturity Flags (NekosAPI)", "This group contains parameters that control the (age) ratings of the content fetched.")
-ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
 
 rat.add_argument("-ms", "--minus-safe", help="remove safe filter, as it is on default, removing this and suggestive, will let all types of ratings be shown", action='store_true')
 rat.add_argument("-mS", "--minus-suggestive", help="remove suggestive filter, as it is on default, removing this and safe, will let all types of ratings be shown", action='store_true')
 rat.add_argument("-pb", "--plus-borderline", help="add borderline filter to allowed ratings", action='store_true')
 rat.add_argument("-pe", "--plus-explicit", help="add explicit filter to allowed ratings", action='store_true')
 
+ext = prsr.add_argument_group("Extras (NekosAPI)", "This group contains parameters that control the content fetched further.")
+
 ext.add_argument("-c", "--character", help="character ID to look for", type=int)
 ext.add_argument("-f", "--is-flagged", help="whether the fetched content is flagged by mods of NekosAPI (0 or 1)", type=int)
 ext.add_argument("-o", "--is-original", help="(USELESS) whether the image's idea is original or it uses characters/settings/content from another place (not original) (0 or 1)", type=int)
-ext.add_argument("-t", "--tag", help="tag ID to look for", type=int)
+ext.add_argument("-t", "--tag", help="tag names to look for (format: tag1,tag2,tag3)", type=parse_list)
 ext.add_argument("-a", "--artist", help="artist ID to look for", type=int)
 ext.add_argument("-ss", "--is-screenshot", help="(USELESS) whether the image is a screenshot of an anime ep./manga page (0 or 1)", type=int)
 
@@ -92,12 +93,12 @@ yrat.add_argument("-ye", "--yand-explicit", help="use the EXPLICIT flag for cont
 yext = prsr.add_argument_group("Extras (yande.re)", "This group contains parameters that control the content fetched from yande.re further.")
 
 yext.add_argument("-p", "--page", help="the page number to look for, can be useful for variety as yande.re only picks a random out of 1000 images max", type=int)
-yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1+tag2+tag3)", type=parse_list)
+yext.add_argument("-yt", "--yand-tags", help="tag names to look for (format: tag1,tag2,tag3)", type=parse_list)
 yext.add_argument("-ync", "--yand-no-catgirl", help="when enabled, doesn't automatically add the 'catgirl' tag", action='store_true')
 
 funargs = prsr.add_argument_group("Fun", "This group contains arguments for fun stuff.")
 
-funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals, but should on most, but kitty will have the best quality)", action='store_true')
+funargs.add_argument("-T", "--terminal", help="show images in terminal instead of browser or local (may not work on all terminals)", action='store_true')
 
 prsr.add_argument("-aw", "--allow-weird-tags", help="allows 'weird' tags; loli, shota", action='store_true')
 prsr.add_argument("-dp", "--download-path", help="specify a custom download path, default is ~/Downloads", type=Path)
@@ -130,6 +131,8 @@ if not args.yand_no_catgirl:
 else:
     ytags = []
 
+tags = []
+
 if not args.allow_weird_tags:
     ytags.append("-loli")
     ytags.append("-shota")
@@ -137,6 +140,10 @@ if not args.allow_weird_tags:
 if args.yand_tags:
     for tag in args.yand_tags:
         ytags.append(tag)
+
+if args.tag:
+    for tag in args.tag:
+        tags.append(tag)
 
 if args.download_path and not Path.is_dir(args.download_path):
     prsr.error("invalid path for -dp")
@@ -156,7 +163,7 @@ params = {
     "limit" : 1,
     "rating" : ["safe", "suggestive"],
     "character" : args.character,
-    "tag" : args.tag,
+    "tags" : args.tag,
     "is_screenshot" : args.is_screenshot,
     "artist" : args.artist,
     "is_flagged" : None,
@@ -213,7 +220,6 @@ def get_img(image_url, scale_factor=1.0):
     img_res.raise_for_status()
     if img_res.status_code == 200:
         img = Image.open(BytesIO(img_res.content))
-        img = img.resize((int(img.width * scale_factor), int(img.height * scale_factor)))
         img_path = tmpdir / Path("nekores.png")
         img.save(img_path)
         return img, img_path
@@ -228,7 +234,7 @@ def glob_open(image_url, scale_factor=1.0):
         if img_attr[0] == 1:
             print(f"{Style.BRIGHT}{Fore.RED}error{Style.RESET_ALL}{Fore.RESET}: failed to get image with status {img_attr[1]}")
         else:
-            if term and "kitty" in term:
+            if term and ("kitty" in term or "ghostty" in term or "konsole" in term):
                 run(["kitten", "icat", "--align", "left", str(img_attr[1])])
             else:
                 run(["img2sixel", str(img_attr[1])])
@@ -258,24 +264,32 @@ def get_neko(): # the magic happens here !
 
     json_data = res.json()
 
-    count = -1
-    for i in json_data:
-        count += 1
+    count = 0
+    if yand:
+        count = -1
+        for i in json_data:
+            count += 1
+    else:
+        if json_data:
+            count += 1
 
     if count <= 0:
         print("no items found in the response; likely no results for your parameters.")
         sys.exit()
+    
+    if args.verbose:
+        print(f"response data: {json_data}")
 
     picked = randrange(0,count)
-    image_url = json_data[picked].get("sample_url") if yand else json_data["items"][0].get("sample_url")
+    image_url = json_data[picked].get("sample_url") if yand else json_data[0].get("url")
     if yand:
         full_img_url = json_data[picked].get("file_url") if not args.download_sample else image_url
     else:
-        full_img_url = json_data["items"][0].get("image_url") if not args.download_sample else image_url
-    image_id = json_data[picked].get("id") if yand else json_data["items"][0].get("id")
+        full_img_url = json_data[0].get("url") if not args.download_sample else image_url
+    image_id = json_data[picked].get("id") if yand else json_data[0].get("id")
     if image_url:
         print(f"❮ Image ID : {image_id} ❯")
-        scale_factor = 0.5 if args.terminal and yand else 1.0
+        scale_factor = 0.5 if args.terminal and yand else 0.9
         glob_open(image_url, scale_factor * factor_mult)
 
         if args.print_data:
@@ -283,16 +297,18 @@ def get_neko(): # the magic happens here !
     else:
         print("no image URL found.")
 
-    if yand:
-        tags = json_data[picked].get("tags")
-        if tags:
-            print(f"{symb["tag"][args.disable_nerdfonts]} : {tags}")
+    tags = json_data[picked].get("tags") if yand else json_data[0].get("tags")
+    if tags:
+        if not yand:
+            tags = ", ".join(tags)
+        print(f"{symb["tag"][args.disable_nerdfonts]} : {tags}")
 
+    if yand:
         score = json_data[picked].get("score")
         if score:
             print(f"{symb["score"][args.disable_nerdfonts]} : {score}")
 
-    rating = json_data[picked].get("rating") if yand else json_data["items"][0].get("rating")
+    rating = json_data[picked].get("rating") if yand else json_data[0].get("rating")
     if rating and yand:
         yrating_dict = {
             "s" : "safe",
@@ -303,13 +319,13 @@ def get_neko(): # the magic happens here !
     if rating:
         print(f"{symb["rating"][args.disable_nerdfonts]} : {rating}")
 
-    image_src = json_data[picked].get("source") if yand else json_data["items"][0].get("source")
+    image_src = json_data[picked].get("source") if yand else json_data[0].get("source_url")
     if image_src:
         print(f"{symb["source"][args.disable_nerdfonts]} : {image_src}")
     else:
         print("no source link found.")
     print(f"{symb["embed"][args.disable_nerdfonts]} : {image_url}")
-    author = json_data[picked].get("author") if yand else json_data["items"][0].get("artist")
+    author = json_data[picked].get("author") if yand else json_data[0].get("artist_name")
     if author:
         print(f"{symb["author"][args.disable_nerdfonts]} : {author}")
 

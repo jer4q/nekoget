@@ -1,8 +1,6 @@
 # nekoget
 ![AUR](https://img.shields.io/aur/version/nekoget?style=for-the-badge&logo=archlinux&logoColor=ffffff&label=AUR)
 
-# NEKOSAPI NOT WORKING
-
 A simple tool for getting images from NekosAPI and yande.re. **(Linux ONLY)**
 
 ## Note
